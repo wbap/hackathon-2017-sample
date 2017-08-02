@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Scenes/OneDimTask6.unity
+- path: Assets/Scenes/OneDimTask1.unity
   isLoaded: 1
   isActive: 1

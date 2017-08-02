@@ -8,10 +8,13 @@ public class Startup : MonoBehaviour {
     [SerializeField]
     float MovementSpeed;
 
+    [SerializeField]
+    string FirstScene = "OneDimTask1";
+
     void Start () {
         PlayerPrefs.DeleteAll();
         PlayerPrefs.SetFloat("Rotation Speed", RotationSpeed);
         PlayerPrefs.SetFloat("Movement Speed", MovementSpeed);
-        EditorSceneManager.LoadScene("ArrowMazeTask1");
+        EditorSceneManager.LoadScene(FirstScene);
     }
 }
