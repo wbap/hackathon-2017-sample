@@ -11,6 +11,12 @@ public class AgentController : MonoBehaviour {
     public bool Paralyzed = false;
 
     public void Start() {
+        if(!PlayerPrefs.HasKey("Rotation Speed")) {
+            PlayerPrefs.SetFloat("RotationSpeed", rotationSpeed);
+        }
+        if(!PlayerPrefs.HasKey("Movement Speed")) {
+            PlayerPrefs.SetFloat("MovementSpeed", movementSpeed);
+        }
         rotationSpeed = PlayerPrefs.GetFloat("Rotation Speed");
         movementSpeed = PlayerPrefs.GetFloat("Movement Speed");
     }
