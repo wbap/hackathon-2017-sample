@@ -2,3 +2,4 @@
 */**/*.pyc
 */**/*.npy
 */**/*.caffemodel
+*/**/*.log
