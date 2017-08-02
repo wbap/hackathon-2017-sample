@@ -12,6 +12,6 @@ public class Startup : MonoBehaviour {
         PlayerPrefs.DeleteAll();
         PlayerPrefs.SetFloat("Rotation Speed", RotationSpeed);
         PlayerPrefs.SetFloat("Movement Speed", MovementSpeed);
-        EditorSceneManager.LoadScene("OneDimTask1");
+        EditorSceneManager.LoadScene("ArrowMazeTask1");
     }
 }

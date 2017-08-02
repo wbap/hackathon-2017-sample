@@ -5,6 +5,8 @@ public class AgentController : MonoBehaviour {
     float rotationSpeed = 10.0F;
     float movementSpeed = 1.0F;
 
+    public bool ManualOverride = false;
+
     [HideInInspector]
     public bool Paralyzed = false;
 
@@ -17,6 +19,23 @@ public class AgentController : MonoBehaviour {
         CharacterController controller = GetComponent<CharacterController>();
 
         if(Paralyzed) return;
+
+        if(ManualOverride) {
+            if(Input.GetKey(KeyCode.RightArrow)) {
+                transform.Rotate(Vector3.up, rotationSpeed);
+            }
+
+            if(Input.GetKey(KeyCode.LeftArrow)) {
+                transform.Rotate(Vector3.down, rotationSpeed);
+            }
+
+            if(Input.GetKey(KeyCode.UpArrow)) {
+                Vector3 direction = transform.TransformDirection(Vector3.forward * movementSpeed);
+                controller.Move(direction);
+            }
+
+            return;
+        }
 
         switch(action) {
         case "0":
@@ -33,5 +52,4 @@ public class AgentController : MonoBehaviour {
             break;
         }
     }
-
 }
