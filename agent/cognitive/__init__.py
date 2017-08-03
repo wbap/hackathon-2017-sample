@@ -1,5 +1,4 @@
 """
-brical.py
 =====
 
 This module contains the class `NetworkBuilder` and `AgentkBuilder` which interprets

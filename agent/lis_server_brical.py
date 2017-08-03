@@ -33,8 +33,8 @@ def unpack(payload, depth_image_count=1, depth_image_dim=32*32):
 
 
 use_gpu = -1
-cnn_feature_extractor = 'alexnet_feature_extractor.pickle'
-model = 'bvlc_alexnet.caffemodel'
+cnn_feature_extractor = 'model/alexnet_feature_extractor.pickle'
+model = 'model/bvlc_alexnet.caffemodel'
 model_type = 'alexnet'
 depth_image_dim = 32 * 32
 depth_image_count = 1

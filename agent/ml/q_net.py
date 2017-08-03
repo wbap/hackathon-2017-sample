@@ -13,7 +13,7 @@ class QNet:
     replay_size = 32  # Replay (batch) size
     target_model_update_freq = 10**4  # Target update frequancy. original: 10^4
     data_size = 10**5  # Data size of history. original: 10^6
-    hist_size = 1 #original: 4
+    hist_size = 1  #original: 4
 
     def __init__(self, use_gpu, enable_controller, dim):
         self.use_gpu = use_gpu

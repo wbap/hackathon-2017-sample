@@ -1,4 +1,4 @@
-#coding: utf-8
+# coding: utf-8
 
 import copy
 import os
@@ -20,7 +20,7 @@ class VVCComponent(brica1.Component):
     image_feature_dim = 256 * 6 * 6
 
     def __init__(self, use_gpu=True, n_output=10240, n_input=1):
-        #image_feature_count = 1
+        # image_feature_count = 1
         super(VVCComponent, self).__init__()
 
         self.use_gpu = use_gpu
@@ -47,7 +47,6 @@ class VVCComponent(brica1.Component):
             pickle.dump(self.feature_extractor, open(cnn_feature_extractor, 'w'))
             print("pickle.dump finished")
 
-
     def _observation_to_featurevec(self, observation):
         # TODO clean
         if self.image_feature_count == 1:
@@ -65,14 +64,12 @@ class VVCComponent(brica1.Component):
         else:
             print("not supported: number of camera")
 
-
     def fire(self):
         observation = self.get_in_port('Isocortex#V1-Isocortex#VVC-Input').buffer
         obs_array = self._observation_to_featurevec(observation)
 
         self.results['Isocortex#VVC-BG-Output'] = obs_array
         self.results['Isocortex#VVC-UB-Output'] = obs_array
-
 
 
 class BGComponent(brica1.Component):
@@ -97,7 +94,6 @@ class BGComponent(brica1.Component):
         # self.make_in_port('Isocortex.ASC-BG-Input', 10) # this port is unused in this sample
         # self.make_in_port('Isocortex.ODC-BG-Input', 10) # this port is unused in this sample
         # self.make_in_port('Isocortex.DVC-BG-Input', 10) # this port is unused in this sample
-
 
         self.results['BG-Isocortex#FL-Output'] = np.array([0])
 
@@ -124,16 +120,13 @@ class BGComponent(brica1.Component):
         self.last_action = copy.deepcopy(return_action)
         self.last_state = self.state.copy()
 
-
         self.last_observation = self.features
         self.exp = [False, self.last_state, self .last_action, 0, self.state, False]
         self.fl_exp = [False, self.last_action, 0, False]
         self.vvc_exp = [self.last_state, self.state]
         return return_action
 
-
     def __step(self, features):
-
         if self.q_net.hist_size == 4:
             self.state = np.asanyarray([self.state[1], self.state[2], self.state[3], features], dtype=np.uint8)
         elif self.q_net.hist_size == 2:
@@ -142,7 +135,6 @@ class BGComponent(brica1.Component):
             self.state = np.asanyarray([features], dtype=np.uint8)
         else:
             print("self.DQN.hist_size err")
-
 
         state_ = np.asanyarray(self.state.reshape(1, self.q_net.hist_size, self.input_dim), dtype=np.float32)
         if self.use_gpu >= 0:
@@ -162,14 +154,12 @@ class BGComponent(brica1.Component):
             print("Policy is Frozen")
             eps = 0.05
 
-
         # Generate an Action by e-greedy action selection
         action, q_now = self.q_net.e_greedy(state_, eps)
 
         return action, eps, q_now, features
 
     def __step_update(self, reward, action, eps, q_now, obs_array):
-
         if self.policy_frozen is False:  # Learning ON/OFF
             if self.exp[0]:
                 self.q_net.optimizer.zero_grads()
@@ -225,7 +215,6 @@ class BGComponent(brica1.Component):
 
         self.counter = 0
 
-
     def fire(self):
 
         # self.fl_exp = self.get_in_port('Isocortex.FL-BG-Input').buffer
@@ -278,7 +267,6 @@ class UBComponent(brica1.Component):
         self.state = self.d[0][0].copy()
         self.time = 0
 
-
     def stock_experience(self, time, state, action,
                         reward, state_dash, episode_end_flag):
         data_index = time % self.data_size
@@ -293,7 +281,6 @@ class UBComponent(brica1.Component):
             self.d[2][data_index] = reward
             self.d[3][data_index] = state_dash
         self.d[4][data_index] = episode_end_flag
-
 
     def experience_replay(self, time):
         replay_start = False
@@ -326,7 +313,6 @@ class UBComponent(brica1.Component):
         else:
             return replay_start, 0, 0, 0, 0, False
 
-
     def end_episode(self):
         action, reward = self.get_in_port('Isocortex#FL-UB.FL-Input').buffer
         # self.state = self.get_in_port('Isocortex.VVC-UB.UVQ-Input').buffer
@@ -335,7 +321,6 @@ class UBComponent(brica1.Component):
         self.stock_experience(self.time, self.last_state, action, reward, self.state, True)
         replay_start, s_replay, a_replay, r_replay, s_dash_replay, episode_end_replay = self.experience_replay(self.time)
         self.results['UB-BG-Output'] = [replay_start, s_replay, a_replay, r_replay, s_dash_replay, episode_end_replay]
-
 
     def fire(self):
         self.state = self.get_in_port('Isocortex#VVC-UB-Input').buffer
@@ -378,7 +363,6 @@ class FLComponent(brica1.Component):
         self.last_action = action
 
 
-
 class RBComponent(brica1.Component):
     def __init__(self):
         super(RBComponent, self).__init__()
@@ -392,7 +376,6 @@ class RBComponent(brica1.Component):
         reward = self.get_in_port('RB-ENV-Input').buffer
         self.results['RB-Isocortex#FL-Output'] = reward
         self.results['RB-BG-Output'] = reward
-
 
 
 class MOComponent(brica1.Component):

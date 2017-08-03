@@ -20,7 +20,7 @@ class CnnFeatureExtractor:
         if self.gpu >= 0:
             cuda.check_cuda_available()
 
-        print('Loading Caffe model file %s...' % self.model, file = sys.stderr)
+        print('Loading Caffe model file %s...' % self.model, file=sys.stderr)
         self.func = caffe.CaffeFunction(self.model)
         print('Loaded', file=sys.stderr)
         if self.gpu >= 0:
@@ -32,9 +32,8 @@ class CnnFeatureExtractor:
             mean_image = np.load('ilsvrc_2012_mean.npy')
             del self.func.layers[15:23]
             self.outname = 'pool5'
-            #del self.func.layers[13:23]
-            #self.outname = 'conv5'
-
+            # del self.func.layers[13:23]
+            # self.outname = 'conv5'
             
         cropwidth = 256 - self.in_size
         start = cropwidth // 2
@@ -55,7 +54,7 @@ class CnnFeatureExtractor:
         x_data = xp.asarray(x_batch)
 
         if self.gpu >= 0:
-            x_data=cuda.to_gpu(x_data)
+            x_data = cuda.to_gpu(x_data)
         
         x = chainer.Variable(x_data, volatile=True)
         feature = self.predict(x)
@@ -67,9 +66,3 @@ class CnnFeatureExtractor:
             feature = feature.data.reshape(self.out_dim)
 
         return feature * 255.0
-
-     
-
-
-    
-
