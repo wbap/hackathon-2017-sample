@@ -40,7 +40,6 @@ depth_image_dim = 32 * 32
 depth_image_count = 1
 image_feature_dim = 256 * 6 * 6
 image_feature_count = 1
-depth_image_count = 1
 feature_output_dim = (depth_image_dim * depth_image_count) + (image_feature_dim * image_feature_count)
 
 
