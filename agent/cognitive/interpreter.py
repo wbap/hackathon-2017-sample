@@ -157,7 +157,8 @@ class NetworkBuilder:
                 return False
             # Loop check
             if self.__loop_check(superModule, module):
-                print >> sys.stderr, "ERROR: Loop detected while trying to add " + module + " as a subunit to " + superModule + "!"
+                print >> sys.stderr, "ERROR: Loop detected while trying to add " + module + \
+                                     " as a subunit to " + superModule + "!"
                 return False
 
         # SubModules of consistency check
@@ -168,7 +169,8 @@ class NetworkBuilder:
                     return False
                 # Loop check
                 if self.__loop_check(superModule, subModule):
-                    print >> sys.stderr, "ERROR: Loop detected while trying to add " + superModule + " as a subunit to " + subModule + "!"
+                    print >> sys.stderr, "ERROR: Loop detected while trying to add " + superModule + \
+                                         " as a subunit to " + subModule + "!"
                     return False
 
         # Port of consistency check
@@ -488,8 +490,9 @@ class NetworkBuilder:
         # Multiple registration
         if defined_port:
             if port_module != defined_port["Module"]:
-                print >> sys.stderr, "ERROR: Module '%s' defined in the port '%s' is already defined as a module '%s'." \
-                                     % (port_module, port_name, self.__ports[port_name]["Module"])
+                print >> sys.stderr, \
+                    "ERROR: Module '%s' defined in the port '%s' is already defined as a module '%s'." % \
+                    (port_module, port_name, self.__ports[port_name]["Module"])
                 return False
 
         if "Type" in port:
@@ -498,8 +501,8 @@ class NetworkBuilder:
                 print >> sys.stderr, "ERROR: Invalid port type '%s'!" % port_type
                 return False
             elif defined_port and port_type != defined_port["IO"]:
-                print >> sys.stderr, "ERROR: The port type of port '%s' differs from previously defined port type!" \
-                                     % port_name
+                print >> sys.stderr, \
+                    "ERROR: The port type of port '%s' differs from previously defined port type!"  % port_name
                 return False
         else:
             print >> sys.stderr, "ERROR: Type not specified while adding a port!"

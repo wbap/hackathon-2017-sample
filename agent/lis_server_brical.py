@@ -55,7 +55,6 @@ class Root(object):
             pickle.dump(self.feature_extractor, open(cnn_feature_extractor, 'w'))
             print("pickle.dump finished")
 
-
         self.nb = interpreter.NetworkBuilder()
         f = open('config/WholeBrainReferenceArchitecture.json')
         self.nb.load_file(f)
@@ -69,7 +68,6 @@ class Root(object):
         self.mo_components = {}     # motor output
         self.rb_components = {}     # reward generator
 
-
     @cherrypy.expose()
     def flush(self, identifier):
 
@@ -80,14 +78,15 @@ class Root(object):
 
         # set components
         self.v1_components[identifier] = modules['WBAH2017WBRA.Isocortex#V1'].get_component('WBAH2017WBRA.Isocortex#V1')
-        self.vvc_components[identifier] = modules['WBAH2017WBRA.Isocortex#VVC'].get_component('WBAH2017WBRA.Isocortex#VVC')
+        self.vvc_components[identifier] = modules['WBAH2017WBRA.Isocortex#VVC'].get_component(
+            'WBAH2017WBRA.Isocortex#VVC')
         self.bg_components[identifier] = modules['WBAH2017WBRA.BG'].get_component('WBAH2017WBRA.BG')
         self.ub_components[identifier] = modules['WBAH2017WBRA.UB'].get_component('WBAH2017WBRA.UB')
         self.fl_components[identifier] = modules['WBAH2017WBRA.Isocortex#FL'].get_component('WBAH2017WBRA.Isocortex#FL')
         self.mo_components[identifier] = modules['WBAH2017WBRA.MO'].get_component('WBAH2017WBRA.MO')
         self.rb_components[identifier] = modules['WBAH2017WBRA.RB'].get_component('WBAH2017WBRA.RB')
 
-        #set feature_extractor
+        # set feature_extractor
         self.vvc_components[identifier].set_model(self.feature_extractor)
 
         self.schedulers[identifier].update()
@@ -107,15 +106,18 @@ class Root(object):
             self.schedulers[identifier] = brica1.VirtualTimeScheduler(self.agents[identifier])
 
             # set components
-            self.v1_components[identifier] = modules['WBAH2017WBRA.Isocortex#V1'].get_component('WBAH2017WBRA.Isocortex#V1')
-            self.vvc_components[identifier] = modules['WBAH2017WBRA.Isocortex#VVC'].get_component('WBAH2017WBRA.Isocortex#VVC')
+            self.v1_components[identifier] = modules['WBAH2017WBRA.Isocortex#V1'].get_component(
+                'WBAH2017WBRA.Isocortex#V1')
+            self.vvc_components[identifier] = modules['WBAH2017WBRA.Isocortex#VVC'].get_component(
+                'WBAH2017WBRA.Isocortex#VVC')
             self.bg_components[identifier] = modules['WBAH2017WBRA.BG'].get_component('WBAH2017WBRA.BG')
             self.ub_components[identifier] = modules['WBAH2017WBRA.UB'].get_component('WBAH2017WBRA.UB')
-            self.fl_components[identifier] = modules['WBAH2017WBRA.Isocortex#FL'].get_component('WBAH2017WBRA.Isocortex#FL')
+            self.fl_components[identifier] = modules['WBAH2017WBRA.Isocortex#FL'].get_component(
+                'WBAH2017WBRA.Isocortex#FL')
             self.mo_components[identifier] = modules['WBAH2017WBRA.MO'].get_component('WBAH2017WBRA.MO')
             self.rb_components[identifier] = modules['WBAH2017WBRA.RB'].get_component('WBAH2017WBRA.RB')
 
-            #set feature_extractor
+            # set feature_extractor
             self.vvc_components[identifier].set_model(self.feature_extractor)
 
             # set interval of each components
@@ -169,7 +171,6 @@ class Root(object):
         self.schedulers[identifier].step()
 
         return str(self.mo_components[identifier].get_in_port('Isocortex#FL-MO-Input').buffer[0])
-
 
     @cherrypy.expose
     def reset(self, identifier):

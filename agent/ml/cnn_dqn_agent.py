@@ -54,7 +54,8 @@ class CnnDqnAgent(object):
                 self.feature_extractor = pickle.load(open(self.cnn_feature_extractor))
                 print("done")
             else:
-                self.feature_extractor = CnnFeatureExtractor(self.use_gpu, self.model, self.model_type, self.image_feature_dim)
+                self.feature_extractor = CnnFeatureExtractor(self.use_gpu, self.model, self.model_type,
+                                                             self.image_feature_dim)
                 pickle.dump(self.feature_extractor, open(self.cnn_feature_extractor, 'w'))
                 print("pickle.dump finished")
 

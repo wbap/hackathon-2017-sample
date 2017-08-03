@@ -13,7 +13,7 @@ class QNet:
     replay_size = 32  # Replay (batch) size
     target_model_update_freq = 10**4  # Target update frequancy. original: 10^4
     data_size = 10**5  # Data size of history. original: 10^6
-    hist_size = 1  #original: 4
+    hist_size = 1  # original: 4
 
     def __init__(self, use_gpu, enable_controller, dim):
         self.use_gpu = use_gpu
@@ -89,9 +89,7 @@ class QNet:
         loss = F.mean_squared_error(td_clip, zero_val)
         return loss, q
 
-    def stock_experience(self, time,
-                        state, action, reward, state_dash,
-                        episode_end_flag):
+    def stock_experience(self, time, state, action, reward, state_dash, episode_end_flag):
         data_index = time % self.data_size
 
         if episode_end_flag is True:
