@@ -26,22 +26,23 @@ class VVCComponent(brica1.Component):
     model_type = 'alexnet'
     image_feature_dim = 256 * 6 * 6
 
-    def __init__(self, **options):
+    def __init__(self, use_gpu=True, n_output=10240, n_input=1):
         #image_feature_count = 1
         super(VVCComponent, self).__init__()
 
-        self.use_gpu = options['use_gpu']
-        self.n_output = options['n_output']
-        self.n_input = options['n_input']
-        self.feature_extractor = options['feature_extractor']
+        self.use_gpu = use_gpu
+        self.n_output = n_output
+        self.n_input = n_input
 
-        self.make_in_port('Env-VVC-Input', 1) # observation from environment
+        self.make_in_port('Isocortex#V1-Isocortex#VVC-Input', self.n_input) # observation from environment
         self.make_out_port('Isocortex#VVC-UB-Output', self.n_output) # feature vector
         self.make_out_port('Isocortex#VVC-BG-Output', self.n_output) # feature vector
 
         # self.make_in_port('Isocortex.DVC-Isocortex.VVC-Input', 1) # this port is unused in this sample
         # self.make_out_port('Isocortex.VVC-Isocortex.ASC-Output', 1) # do not use in this sample
 
+    def set_model(self, feature_extractor):
+        self.feature_extractor = feature_extractor
 
     def load_model(self, cnn_feature_extractor):
         if os.path.exists(cnn_feature_extractor):
@@ -73,7 +74,7 @@ class VVCComponent(brica1.Component):
 
 
     def fire(self):
-        observation = self.get_in_port('Env-VVC-Input').buffer
+        observation = self.get_in_port('Isocortex#V1-Isocortex#VVC-Input').buffer
         obs_array = self._observation_to_featurevec(observation)
 
         self.results['Isocortex#VVC-BG-Output'] = obs_array
@@ -100,9 +101,9 @@ class BGComponent(brica1.Component):
         self.make_in_port('RB-BG-Input', 1) # recieve reward from RB
         self.make_in_port('Isocortex#VVC-BG-Input', n_input) # recieve state (feature vector) from VVC
         self.make_in_port('UB-BG-Input', 6) # recieve replayed experience from UB
-        # self.make_in_port('Isocortex.ASC-BG-Input', 1) # this port is unused in this sample
-        # self.make_in_port('Isocortex.ODC-BG-Input', 1) # this port is unused in this sample
-        # self.make_in_port('Isocortex.DVC-BG-Input', 1) # this port is unused in this sample
+        # self.make_in_port('Isocortex.ASC-BG-Input', 10) # this port is unused in this sample
+        # self.make_in_port('Isocortex.ODC-BG-Input', 10) # this port is unused in this sample
+        # self.make_in_port('Isocortex.DVC-BG-Input', 10) # this port is unused in this sample
 
 
         self.results['BG-Isocortex#FL-Output'] = np.array([0])
@@ -270,9 +271,9 @@ class UBComponent(brica1.Component):
         self.make_out_port('UB-BG-Output', 6) # output: state_replay, state_dash_replay
         self.make_in_port('Isocortex#FL-UB-Input', 2) #荒川さんのjsonファイルにないけど必要では？
 
-        # self.make_in_port('Isocortex.DVC-UB-Input', 1) # this port is unused in this sample
-        # self.make_in_port('Isocortex.ODC-UB-Input', 1) # this port is unused in this sample
-        # self.make_out_port('UB-Isocortex.ASC-Output', 1) # this port is unused in this sample
+        # self.make_in_port('Isocortex.DVC-UB-Input', 10) # this port is unused in this sample
+        # self.make_in_port('Isocortex.ODC-UB-Input', 10) # this port is unused in this sample
+        # self.make_out_port('UB-Isocortex.ASC-Output', 10) # this port is unused in this sample
 
 
         self.get_in_port('Isocortex#VVC-UB-Input').buffer = self.d[0][0]
@@ -346,6 +347,7 @@ class UBComponent(brica1.Component):
     def fire(self):
         self.state = self.get_in_port('Isocortex#VVC-UB-Input').buffer
         action, reward = self.get_in_port('Isocortex#FL-UB-Input').buffer
+        print 'UB action: ', action
         # self.stock_experience(self.time, self.second_last_state, action, reward, self.last_state, False)
         self.stock_experience(self.time, self.last_state, action, reward, self.state, False)
         replay_start, s_replay, a_replay, r_replay, s_dash_replay, episode_end_replay = self.experience_replay(self.time)
@@ -362,9 +364,9 @@ class FLComponent(brica1.Component):
         # self.make_out_port('Isocortex.FL-BG-Output', 4) # this port is unused in this sample
         self.make_out_port('Isocortex#FL-MO-Output', 1) # action
         self.make_out_port('Isocortex#FL-UB-Output', 2) # action, reward　荒川さんのjsonにはないけど
-        # self.make_out_port('Isocortex.FL-Isocortex.ASC-Output', 1) # this port is unused in this sample
-        # self.make_out_port('Isocortex.FL-Isocortex.DVC-Output', 1) # this port is unused in this sample
-        # self.make_in_port('Isocortex.ASC-Isocortex.FL-Input', 1)　# this port is unused in this sample
+        # self.make_out_port('Isocortex.FL-Isocortex.ASC-Output', 10) # this port is unused in this sample
+        # self.make_out_port('Isocortex.FL-Isocortex.DVC-Output', 10) # this port is unused in this sample
+        # self.make_in_port('Isocortex.ASC-Isocortex.FL-Input', 10)　# this port is unused in this sample
         self.make_in_port('BG-Isocortex#FL-Input', 1) # action
         self.make_in_port('RB-Isocortex#FL-Input', 1) # reward
 
@@ -375,7 +377,8 @@ class FLComponent(brica1.Component):
     def fire(self):
         action = self.get_in_port('BG-Isocortex#FL-Input').buffer
         reward = self.get_in_port('RB-Isocortex#FL-Input').buffer
-
+        print 'FL action: ', action
+        print 'FL last_action: ', self.last_action
         self.results['Isocortex#FL-MO-Output'] = action
         self.results['Isocortex#FL-UB-Output'] = [self.last_action, reward]
 
@@ -398,15 +401,8 @@ class RBComponent(brica1.Component):
         self.results['RB-BG-Output'] = reward
 
 
-'''
+
 class MOComponent(brica1.Component):
     def __init__(self):
         super(MOComponent, self).__init__()
-        # self.set_map('Isocortex.FL-MO-Input', 'Env-Action')
         self.make_in_port('Isocortex#FL-MO-Input', 1)
-        self.make_out_port('MO-ENV-Output', 1)
-
-    def fire(self):
-        action = self.get_in_port('Isocortex#FL-MO-Input').buffer
-        self.results['MO-ENV-Output'] = action
-'''

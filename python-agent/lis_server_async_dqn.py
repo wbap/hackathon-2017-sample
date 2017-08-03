@@ -162,13 +162,6 @@ class Root(object):
             self.mo_components[identifier].offset = 5000
 
             # set sleep
-            # self.vvc_components[identifier].sleep = 4500
-            # self.bg_components[identifier].sleep = 4500
-            # self.ub_components[identifier].sleep = 4500
-            # self.mo_components[identifier].sleep = 4500
-            # self.fl_components[identifier].sleep = 4500
-            # self.rb_components[identifier].sleep = 4500
-
             self.vvc_components[identifier].sleep = 6000
             self.bg_components[identifier].sleep = 6000
             self.ub_components[identifier].sleep = 6000
@@ -178,28 +171,28 @@ class Root(object):
 
             # connect port
             # from VVC to UB, BG(replay info), BG(state info)
-            brica1.connect((self.vvc_components[identifier], 'Isocortex.VVC-UB-Output'),
-                           (self.ub_components[identifier], 'Isocortex.VVC-UB-Input'))
-            brica1.connect((self.vvc_components[identifier], 'Isocortex.VVC-BG-Output'),
-                           (self.bg_components[identifier], 'Isocortex.VVC-BG-Input'))
+            brica1.connect((self.vvc_components[identifier], 'Isocortex#VVC-UB-Output'),
+                           (self.ub_components[identifier], 'Isocortex#VVC-UB-Input'))
+            brica1.connect((self.vvc_components[identifier], 'Isocortex#VVC-BG-Output'),
+                           (self.bg_components[identifier], 'Isocortex#VVC-BG-Input'))
             # brica1.connect((self.vvc_components[identifier], 'Isocortex.VVC-BG-Output'),
             #                (self.bg_components[identifier], 'Isocortex.VVC-BG-Input'))
             # from BG to FL
-            brica1.connect((self.bg_components[identifier], 'BG-Isocortex.FL-Output'),
-                           (self.fl_components[identifier], 'BG-Isocortex.FL-Input'))
+            brica1.connect((self.bg_components[identifier], 'BG-Isocortex#FL-Output'),
+                           (self.fl_components[identifier], 'BG-Isocortex#FL-Input'))
             # from UB to BG
             brica1.connect((self.ub_components[identifier], 'UB-BG-Output'),
                            (self.bg_components[identifier], 'UB-BG-Input'))
             # from FL to BG, MO, UB
             # brica1.connect((self.fl_components[identifier], 'Isocortex.FL-BG-Output'),
             #                (self.bg_components[identifier], 'Isocortex.FL-BG-Input'))
-            brica1.connect((self.fl_components[identifier], 'Isocortex.FL-MO-Output'),
-                           (self.mo_components[identifier], 'Isocortex.FL-MO-Input'))
-            brica1.connect((self.fl_components[identifier], 'Isocortex.FL-UB-Output'),
-                           (self.ub_components[identifier], 'Isocortex.FL-UB-Input'))
+            brica1.connect((self.fl_components[identifier], 'Isocortex#FL-MO-Output'),
+                           (self.mo_components[identifier], 'Isocortex#FL-MO-Input'))
+            brica1.connect((self.fl_components[identifier], 'Isocortex#FL-UB-Output'),
+                           (self.ub_components[identifier], 'Isocortex#FL-UB-Input'))
             # from RB to FL, BG
-            brica1.connect((self.rb_components[identifier], 'RB-Isocortex.FL-Output'),
-                           (self.fl_components[identifier], 'RB-Isocortex.FL-Input'))
+            brica1.connect((self.rb_components[identifier], 'RB-Isocortex#FL-Output'),
+                           (self.fl_components[identifier], 'RB-Isocortex#FL-Input'))
             brica1.connect((self.rb_components[identifier], 'RB-BG-Output'),
                            (self.bg_components[identifier], 'RB-BG-Input'))
 
@@ -218,9 +211,9 @@ class Root(object):
         self.vvc_components[identifier].get_in_port('Env-VVC-Input').buffer = observation
         self.vvc_components[identifier].fire()
         self.vvc_components[identifier].output(self.vvc_components[identifier].last_output_time)
-        features = self.vvc_components[identifier].get_out_port('Isocortex.VVC-BG-Output').buffer
+        features = self.vvc_components[identifier].get_out_port('Isocortex#VVC-BG-Output').buffer
 
-        self.bg_components[identifier].get_in_port('Isocortex.VVC-BG-Input').buffer = features
+        self.bg_components[identifier].get_in_port('Isocortex#VVC-BG-Input').buffer = features
         action = self.bg_components[identifier].start()
         self.schedulers[identifier].step()
         return str(action)
@@ -238,7 +231,8 @@ class Root(object):
         # print 'queue: ', self.schedulers[identifier].event_queue.queue
         self.schedulers[identifier].step()
 
-        return str(self.mo_components[identifier].get_out_port('MO-ENV-Output').buffer[0])
+        # return str(self.mo_components[identifier].get_out_port('MO-ENV-Output').buffer[0])
+        return str(self.mo_components[identifier].get_in_port('Isocortex#FL-MO-Input').buffer[0])
 
 
     @cherrypy.expose
@@ -256,7 +250,7 @@ class Root(object):
         self.bg_components[identifier].input(current_time)
         self.bg_components[identifier].agent_end(reward)
 
-        return str(self.mo_components[identifier].get_out_port('MO-ENV-Output').buffer[0])
+        return str(self.mo_components[identifier].get_in_port('Isocortex#FL-MO-Input').buffer[0])
 
 
 def main(args):
