@@ -8,12 +8,14 @@ from chainer import cuda
 import chainer.functions as F
 from chainer.links import caffe
 
+from config.model import DEFALUT_MEAN_IMAGE
+
 
 class CnnFeatureExtractor:
     def __init__(self, gpu, model, model_type, out_dim):
         self.gpu = gpu
-        self.model = 'bvlc_alexnet.caffemodel'
-        self.model_type = 'alexnet'
+        self.model = model
+        self.model_type = model_type
         self.batchsize = 1
         self.out_dim = out_dim
 
@@ -29,7 +31,7 @@ class CnnFeatureExtractor:
 
         if self.model_type == 'alexnet':
             self.in_size = 227
-            mean_image = np.load('ilsvrc_2012_mean.npy')
+            mean_image = np.load(DEFALUT_MEAN_IMAGE)
             del self.func.layers[15:23]
             self.outname = 'pool5'
             # del self.func.layers[13:23]

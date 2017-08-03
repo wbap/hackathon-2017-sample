@@ -13,6 +13,9 @@ from PIL import ImageOps
 from agent.cognitive import interpreter
 from agent.ml.cnn_feature_extractor import CnnFeatureExtractor
 
+from config import BRICA_CONFIG_FILE
+from config.model import CNN_FEATURE_EXTRACTOR, CAFFE_MODEL, MODEL_TYPE
+
 
 def unpack(payload, depth_image_count=1, depth_image_dim=32*32):
     dat = msgpack.unpackb(payload)
@@ -33,9 +36,6 @@ def unpack(payload, depth_image_count=1, depth_image_dim=32*32):
 
 
 use_gpu = -1
-cnn_feature_extractor = 'model/alexnet_feature_extractor.pickle'
-model = 'model/bvlc_alexnet.caffemodel'
-model_type = 'alexnet'
 depth_image_dim = 32 * 32
 depth_image_count = 1
 image_feature_dim = 256 * 6 * 6
@@ -45,17 +45,17 @@ feature_output_dim = (depth_image_dim * depth_image_count) + (image_feature_dim 
 
 class Root(object):
     def __init__(self, **kwargs):
-        if os.path.exists(cnn_feature_extractor):
-            print("loading... " + cnn_feature_extractor),
-            self.feature_extractor = pickle.load(open(cnn_feature_extractor))
+        if os.path.exists(CNN_FEATURE_EXTRACTOR):
+            print("loading... " + CNN_FEATURE_EXTRACTOR),
+            self.feature_extractor = pickle.load(open(CNN_FEATURE_EXTRACTOR))
             print("done")
         else:
-            self.feature_extractor = CnnFeatureExtractor(use_gpu, model, model_type, image_feature_dim)
-            pickle.dump(self.feature_extractor, open(cnn_feature_extractor, 'w'))
+            self.feature_extractor = CnnFeatureExtractor(use_gpu, CAFFE_MODEL, MODEL_TYPE, image_feature_dim)
+            pickle.dump(self.feature_extractor, open(CNN_FEATURE_EXTRACTOR, 'w'))
             print("pickle.dump finished")
 
         self.nb = interpreter.NetworkBuilder()
-        f = open('config/WholeBrainReferenceArchitecture.json')
+        f = open(BRICA_CONFIG_FILE)
         self.nb.load_file(f)
         self.agents = {}
         self.schedulers = {}

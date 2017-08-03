@@ -10,6 +10,8 @@ from chainer import cuda
 from agent.ml.cnn_feature_extractor import CnnFeatureExtractor
 from agent.ml.q_net import QNet
 
+from config.model import CNN_FEATURE_EXTRACTOR, CAFFE_MODEL, MODEL_TYPE
+
 
 class CnnDqnAgent(object):
     policy_frozen = False
@@ -18,9 +20,9 @@ class CnnDqnAgent(object):
 
     actions = [0, 1, 2]
 
-    cnn_feature_extractor = 'alexnet_feature_extractor.pickle'
-    model = 'bvlc_alexnet.caffemodel'
-    model_type = 'alexnet'
+    cnn_feature_extractor = CNN_FEATURE_EXTRACTOR
+    model = CAFFE_MODEL
+    model_type = MODEL_TYPE
     image_feature_dim = 256 * 6 * 6
     image_feature_count = 1
 
