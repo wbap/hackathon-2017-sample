@@ -1,6 +1,1 @@
 .idea
-*/**/*.pyc
-*/**/*.npy
-*/**/*.caffemodel
-*/**/*.log
-*/**/*.pickle
