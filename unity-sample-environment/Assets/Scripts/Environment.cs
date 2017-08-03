@@ -55,6 +55,8 @@ public class Environment : MonoBehaviour {
         rewardText.text = "Reward: " + Reward.Get();
 
         if(task.Success()) {
+            task.Reset();
+
             if(task.Done(successCount, failureCount)) {
                 PlayerPrefs.SetInt("Success Count", 0);
                 PlayerPrefs.SetInt("Failure Count", 0);
@@ -68,6 +70,8 @@ public class Environment : MonoBehaviour {
         }
 
         if(task.Failure()) {
+            task.Reset();
+
             PlayerPrefs.SetInt("Failure Count", failureCount + 1);
             EditorSceneManager.LoadScene(EditorSceneManager.GetActiveScene().name);
             return;

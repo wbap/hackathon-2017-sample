@@ -13,8 +13,6 @@ public class AgentBehaviour : MonoBehaviour {
 
     bool created = false;
 
-    public float Reward = 0.0F;
-
     void OnCollisionEnter(Collision col) {
         if(col.gameObject.tag == "Reward") {
             NotificationCenter.DefaultCenter.PostNotification(this, "OnRewardCollision");
@@ -29,6 +27,10 @@ public class AgentBehaviour : MonoBehaviour {
         msg.depth = sensor.GetDepthImages();
 
         return packer.Pack(msg);
+    }
+
+    public void Reset() {
+        client.Reset(GenerateMessage());
     }
 
     void Start () {
