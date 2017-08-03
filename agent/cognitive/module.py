@@ -341,7 +341,7 @@ class FLComponent(brica1.Component):
         super(FLComponent, self).__init__()
         # self.make_out_port('Isocortex.FL-BG-Output', 4) # this port is unused in this sample
         self.make_out_port('Isocortex#FL-MO-Output', 1)  # action
-        self.make_out_port('Isocortex#FL-UB-Output', 2)  # action, reward　荒川さんのjsonにはないけど
+        self.make_out_port('Isocortex#FL-UB-Output', 2)  # action, reward
         # self.make_out_port('Isocortex.FL-Isocortex.ASC-Output', 10) # this port is unused in this sample
         # self.make_out_port('Isocortex.FL-Isocortex.DVC-Output', 10) # this port is unused in this sample
         # self.make_in_port('Isocortex.ASC-Isocortex.FL-Input', 10)　# this port is unused in this sample
