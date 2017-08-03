@@ -38,8 +38,10 @@ public class AgentBehaviour : MonoBehaviour {
 	
     void Update () {
         if(!created) {
-            client.Create(GenerateMessage());
-            created = true;
+            if(!client.Calling) {
+                client.Create(GenerateMessage());
+                created = true;
+            }
         } else {
             if(!client.Calling) {
                 client.Step(GenerateMessage());
