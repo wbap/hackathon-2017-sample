@@ -186,7 +186,7 @@
   {
    "Comment": "Frontal Cortex",
    "Name": "Isocortex#FL",
-   "ImplClass":"ml_module_brical.FLComponent",
+   "ImplClass":"cognitive.module.FLComponent",
    "Ports": [
     "Isocortex#FL-Isocortex#ASC-Output",
     "Isocortex#FL-Isocortex#DVC-Output",
@@ -201,7 +201,7 @@
   {
    "Comment": "Basal Ganglia",
    "Name": "BG",
-   "ImplClass":"ml_module_brical.BGComponent",
+   "ImplClass":"cognitive.module.BGComponent",
    "Ports": [
     "Isocortex#FL-BG-Input",
     "BG-Isocortex#FL-Output",
@@ -275,7 +275,7 @@
   {
    "Comment": "Visual What Path",
    "Name": "Isocortex#VVC",
-   "ImplClass":"ml_module_brical.VVCComponent",
+   "ImplClass":"cognitive.module.VVCComponent",
    "Ports": [
     "Isocortex#DVC-Isocortex#VVC-Input",
     "Isocortex#V1-Isocortex#VVC-Input",
@@ -287,7 +287,7 @@
   {
    "Comment": "Perihippocampal Area and Hippocampal Formation",
    "Name": "UB",
-   "ImplClass":"ml_module_brical.UBComponent",
+   "ImplClass":"cognitive.module.UBComponent",
    "Ports": [
     "Isocortex#FL-UB-Input",
     "Isocortex#ODC-UB-Input",
