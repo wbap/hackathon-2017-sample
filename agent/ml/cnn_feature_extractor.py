@@ -8,7 +8,7 @@ from chainer import cuda
 import chainer.functions as F
 from chainer.links import caffe
 
-from config.model import DEFALUT_MEAN_IMAGE
+from config.model import DEFAULT_MEAN_IMAGE
 
 
 class CnnFeatureExtractor:
@@ -31,7 +31,7 @@ class CnnFeatureExtractor:
 
         if self.model_type == 'alexnet':
             self.in_size = 227
-            mean_image = np.load(DEFALUT_MEAN_IMAGE)
+            mean_image = np.load(DEFAULT_MEAN_IMAGE)
             del self.func.layers[15:23]
             self.outname = 'pool5'
             # del self.func.layers[13:23]
