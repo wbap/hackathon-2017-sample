@@ -16,6 +16,10 @@ public abstract class Task : MonoBehaviour {
     public abstract bool Failure();
     public abstract bool Done(int success, int failure);
 
+    public virtual void Reset() {
+        agent.behaviour.Reset();
+    }
+
     protected virtual void OnRewardCollision() {
         rewardCount += 1;
         Reward.Add(2.0F);
