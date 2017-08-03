@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 
-import six.moves.cPickle as pickle
 import copy
 import os
+
 import numpy as np
+import six.moves.cPickle as pickle
 from chainer import cuda
 
-from cnn_feature_extractor import CnnFeatureExtractor
-from q_net import QNet
+from agent.ml.cnn_feature_extractor import CnnFeatureExtractor
+from agent.ml.q_net import QNet
+
+from config.model import CNN_FEATURE_EXTRACTOR, CAFFE_MODEL, MODEL_TYPE
 
 
 class CnnDqnAgent(object):
@@ -17,9 +20,9 @@ class CnnDqnAgent(object):
 
     actions = [0, 1, 2]
 
-    cnn_feature_extractor = 'alexnet_feature_extractor.pickle'
-    model = 'bvlc_alexnet.caffemodel'
-    model_type = 'alexnet'
+    cnn_feature_extractor = CNN_FEATURE_EXTRACTOR
+    model = CAFFE_MODEL
+    model_type = MODEL_TYPE
     image_feature_dim = 256 * 6 * 6
     image_feature_count = 1
 
@@ -53,7 +56,8 @@ class CnnDqnAgent(object):
                 self.feature_extractor = pickle.load(open(self.cnn_feature_extractor))
                 print("done")
             else:
-                self.feature_extractor = CnnFeatureExtractor(self.use_gpu, self.model, self.model_type, self.image_feature_dim)
+                self.feature_extractor = CnnFeatureExtractor(self.use_gpu, self.model, self.model_type,
+                                                             self.image_feature_dim)
                 pickle.dump(self.feature_extractor, open(self.cnn_feature_extractor, 'w'))
                 print("pickle.dump finished")
 

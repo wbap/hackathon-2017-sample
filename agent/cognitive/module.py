@@ -1,22 +1,15 @@
-#coding: utf-8
+# coding: utf-8
 
-import sys
-import six.moves.cPickle as pickle
 import copy
 import os
-import logging
-import numpy as np
 
-import brica1
 import brica1.gym
+import numpy as np
+import six.moves.cPickle as pickle
 from chainer import cuda
 
-# from cnn_feature_extractor import CnnFeatureExtractor
-from q_net import QNet
-from chainer import cuda, optimizers
-
-import time
-
+from agent.ml.cnn_feature_extractor import CnnFeatureExtractor
+from agent.ml.q_net import QNet
 
 
 class VVCComponent(brica1.Component):
@@ -26,22 +19,23 @@ class VVCComponent(brica1.Component):
     model_type = 'alexnet'
     image_feature_dim = 256 * 6 * 6
 
-    def __init__(self, **options):
-        #image_feature_count = 1
+    def __init__(self, use_gpu=True, n_output=10240, n_input=1):
+        # image_feature_count = 1
         super(VVCComponent, self).__init__()
 
-        self.use_gpu = options['use_gpu']
-        self.n_output = options['n_output']
-        self.n_input = options['n_input']
-        self.feature_extractor = options['feature_extractor']
+        self.use_gpu = use_gpu
+        self.n_output = n_output
+        self.n_input = n_input
 
-        self.make_in_port('Env-VVC-Input', 1) # observation from environment
-        self.make_out_port('Isocortex#VVC-UB-Output', self.n_output) # feature vector
-        self.make_out_port('Isocortex#VVC-BG-Output', self.n_output) # feature vector
+        self.make_in_port('Isocortex#V1-Isocortex#VVC-Input', self.n_input)  # observation from environment
+        self.make_out_port('Isocortex#VVC-UB-Output', self.n_output)  # feature vector
+        self.make_out_port('Isocortex#VVC-BG-Output', self.n_output)  # feature vector
 
         # self.make_in_port('Isocortex.DVC-Isocortex.VVC-Input', 1) # this port is unused in this sample
         # self.make_out_port('Isocortex.VVC-Isocortex.ASC-Output', 1) # do not use in this sample
 
+    def set_model(self, feature_extractor):
+        self.feature_extractor = feature_extractor
 
     def load_model(self, cnn_feature_extractor):
         if os.path.exists(cnn_feature_extractor):
@@ -49,10 +43,10 @@ class VVCComponent(brica1.Component):
             self.feature_extractor = pickle.load(open(cnn_feature_extractor))
             print("done")
         else:
-            self.feature_extractor = CnnFeatureExtractor(self.use_gpu, self.model, self.model_type, self.image_feature_dim)
+            self.feature_extractor = CnnFeatureExtractor(self.use_gpu, self.model, self.model_type,
+                                                         self.image_feature_dim)
             pickle.dump(self.feature_extractor, open(cnn_feature_extractor, 'w'))
             print("pickle.dump finished")
-
 
     def _observation_to_featurevec(self, observation):
         # TODO clean
@@ -71,14 +65,12 @@ class VVCComponent(brica1.Component):
         else:
             print("not supported: number of camera")
 
-
     def fire(self):
-        observation = self.get_in_port('Env-VVC-Input').buffer
+        observation = self.get_in_port('Isocortex#V1-Isocortex#VVC-Input').buffer
         obs_array = self._observation_to_featurevec(observation)
 
         self.results['Isocortex#VVC-BG-Output'] = obs_array
         self.results['Isocortex#VVC-UB-Output'] = obs_array
-
 
 
 class BGComponent(brica1.Component):
@@ -96,14 +88,13 @@ class BGComponent(brica1.Component):
         self.q_net = QNet(use_gpu, self.actions, self.input_dim)
 
         # self.make_in_port('Isocortex.FL-BG-Input', 4) # this port is unused in this sample
-        self.make_out_port('BG-Isocortex#FL-Output', 1) # send action and reward to FL
-        self.make_in_port('RB-BG-Input', 1) # recieve reward from RB
-        self.make_in_port('Isocortex#VVC-BG-Input', n_input) # recieve state (feature vector) from VVC
-        self.make_in_port('UB-BG-Input', 6) # recieve replayed experience from UB
-        # self.make_in_port('Isocortex.ASC-BG-Input', 1) # this port is unused in this sample
-        # self.make_in_port('Isocortex.ODC-BG-Input', 1) # this port is unused in this sample
-        # self.make_in_port('Isocortex.DVC-BG-Input', 1) # this port is unused in this sample
-
+        self.make_out_port('BG-Isocortex#FL-Output', 1)  # send action and reward to FL
+        self.make_in_port('RB-BG-Input', 1)  # recieve reward from RB
+        self.make_in_port('Isocortex#VVC-BG-Input', n_input)  # recieve state (feature vector) from VVC
+        self.make_in_port('UB-BG-Input', 6)  # recieve replayed experience from UB
+        # self.make_in_port('Isocortex.ASC-BG-Input', 10) # this port is unused in this sample
+        # self.make_in_port('Isocortex.ODC-BG-Input', 10) # this port is unused in this sample
+        # self.make_in_port('Isocortex.DVC-BG-Input', 10) # this port is unused in this sample
 
         self.results['BG-Isocortex#FL-Output'] = np.array([0])
 
@@ -130,16 +121,13 @@ class BGComponent(brica1.Component):
         self.last_action = copy.deepcopy(return_action)
         self.last_state = self.state.copy()
 
-
         self.last_observation = self.features
         self.exp = [False, self.last_state, self .last_action, 0, self.state, False]
         self.fl_exp = [False, self.last_action, 0, False]
         self.vvc_exp = [self.last_state, self.state]
         return return_action
 
-
     def __step(self, features):
-
         if self.q_net.hist_size == 4:
             self.state = np.asanyarray([self.state[1], self.state[2], self.state[3], features], dtype=np.uint8)
         elif self.q_net.hist_size == 2:
@@ -148,7 +136,6 @@ class BGComponent(brica1.Component):
             self.state = np.asanyarray([features], dtype=np.uint8)
         else:
             print("self.DQN.hist_size err")
-
 
         state_ = np.asanyarray(self.state.reshape(1, self.q_net.hist_size, self.input_dim), dtype=np.float32)
         if self.use_gpu >= 0:
@@ -168,19 +155,18 @@ class BGComponent(brica1.Component):
             print("Policy is Frozen")
             eps = 0.05
 
-
         # Generate an Action by e-greedy action selection
         action, q_now = self.q_net.e_greedy(state_, eps)
 
         return action, eps, q_now, features
 
     def __step_update(self, reward, action, eps, q_now, obs_array):
-
         if self.policy_frozen is False:  # Learning ON/OFF
             if self.exp[0]:
                 self.q_net.optimizer.zero_grads()
                 loss, _ = self.q_net.forward(self.exp[1], self.exp[2], self.exp[3], self.exp[4], self.exp[5])
-                # loss, _ = self.q_net.forward(self.vvc_exp[0], self.fl_exp[1], self.fl_exp[2], self.vvc_exp[1], self.fl_exp[3])
+                # loss, _ = self.q_net.forward(self.vvc_exp[0], self.fl_exp[1], self.fl_exp[2], self.vvc_exp[1],
+                # self.fl_exp[3])
                 loss.backward()
                 self.q_net.optimizer.update()
 
@@ -231,7 +217,6 @@ class BGComponent(brica1.Component):
 
         self.counter = 0
 
-
     def fire(self):
 
         # self.fl_exp = self.get_in_port('Isocortex.FL-BG-Input').buffer
@@ -266,14 +251,13 @@ class UBComponent(brica1.Component):
                   np.zeros((self.data_size, self.hist_size, self.dim), dtype=np.uint8),
                   np.zeros((self.data_size, 1), dtype=np.bool)]
 
-        self.make_in_port('Isocortex#VVC-UB-Input', 10240) # input: feature vector
-        self.make_out_port('UB-BG-Output', 6) # output: state_replay, state_dash_replay
-        self.make_in_port('Isocortex#FL-UB-Input', 2) #荒川さんのjsonファイルにないけど必要では？
+        self.make_in_port('Isocortex#VVC-UB-Input', 10240)  # input: feature vector
+        self.make_out_port('UB-BG-Output', 6)  # output: state_replay, state_dash_replay
+        self.make_in_port('Isocortex#FL-UB-Input', 2)  # 荒川さんのjsonファイルにないけど必要では？
 
-        # self.make_in_port('Isocortex.DVC-UB-Input', 1) # this port is unused in this sample
-        # self.make_in_port('Isocortex.ODC-UB-Input', 1) # this port is unused in this sample
-        # self.make_out_port('UB-Isocortex.ASC-Output', 1) # this port is unused in this sample
-
+        # self.make_in_port('Isocortex.DVC-UB-Input', 10) # this port is unused in this sample
+        # self.make_in_port('Isocortex.ODC-UB-Input', 10) # this port is unused in this sample
+        # self.make_out_port('UB-Isocortex.ASC-Output', 10) # this port is unused in this sample
 
         self.get_in_port('Isocortex#VVC-UB-Input').buffer = self.d[0][0]
         self.results['UB-BG-Output'] = False, 0, 0, 0, 0, 0
@@ -284,9 +268,7 @@ class UBComponent(brica1.Component):
         self.state = self.d[0][0].copy()
         self.time = 0
 
-
-    def stock_experience(self, time, state, action,
-                        reward, state_dash, episode_end_flag):
+    def stock_experience(self, time, state, action, reward, state_dash, episode_end_flag):
         data_index = time % self.data_size
 
         if episode_end_flag is True:
@@ -299,7 +281,6 @@ class UBComponent(brica1.Component):
             self.d[2][data_index] = reward
             self.d[3][data_index] = state_dash
         self.d[4][data_index] = episode_end_flag
-
 
     def experience_replay(self, time):
         replay_start = False
@@ -332,23 +313,24 @@ class UBComponent(brica1.Component):
         else:
             return replay_start, 0, 0, 0, 0, False
 
-
     def end_episode(self):
         action, reward = self.get_in_port('Isocortex#FL-UB.FL-Input').buffer
         # self.state = self.get_in_port('Isocortex.VVC-UB.UVQ-Input').buffer
         self.time += 1
         # self.stock_experience(self.time, self.second_last_state, action, reward, self.last_state, True)
         self.stock_experience(self.time, self.last_state, action, reward, self.state, True)
-        replay_start, s_replay, a_replay, r_replay, s_dash_replay, episode_end_replay = self.experience_replay(self.time)
+        replay_start, s_replay, a_replay, r_replay, s_dash_replay, episode_end_replay = \
+            self.experience_replay(self.time)
         self.results['UB-BG-Output'] = [replay_start, s_replay, a_replay, r_replay, s_dash_replay, episode_end_replay]
-
 
     def fire(self):
         self.state = self.get_in_port('Isocortex#VVC-UB-Input').buffer
         action, reward = self.get_in_port('Isocortex#FL-UB-Input').buffer
+        print 'UB action: ', action
         # self.stock_experience(self.time, self.second_last_state, action, reward, self.last_state, False)
         self.stock_experience(self.time, self.last_state, action, reward, self.state, False)
-        replay_start, s_replay, a_replay, r_replay, s_dash_replay, episode_end_replay = self.experience_replay(self.time)
+        replay_start, s_replay, a_replay, r_replay, s_dash_replay, episode_end_replay = \
+            self.experience_replay(self.time)
 
         self.results['UB-BG-Output'] = [replay_start, s_replay, a_replay, r_replay, s_dash_replay, episode_end_replay]
         # self.second_last_state = self.last_state.copy()
@@ -360,13 +342,13 @@ class FLComponent(brica1.Component):
     def __init__(self):
         super(FLComponent, self).__init__()
         # self.make_out_port('Isocortex.FL-BG-Output', 4) # this port is unused in this sample
-        self.make_out_port('Isocortex#FL-MO-Output', 1) # action
-        self.make_out_port('Isocortex#FL-UB-Output', 2) # action, reward　荒川さんのjsonにはないけど
-        # self.make_out_port('Isocortex.FL-Isocortex.ASC-Output', 1) # this port is unused in this sample
-        # self.make_out_port('Isocortex.FL-Isocortex.DVC-Output', 1) # this port is unused in this sample
-        # self.make_in_port('Isocortex.ASC-Isocortex.FL-Input', 1)　# this port is unused in this sample
-        self.make_in_port('BG-Isocortex#FL-Input', 1) # action
-        self.make_in_port('RB-Isocortex#FL-Input', 1) # reward
+        self.make_out_port('Isocortex#FL-MO-Output', 1)  # action
+        self.make_out_port('Isocortex#FL-UB-Output', 2)  # action, reward　荒川さんのjsonにはないけど
+        # self.make_out_port('Isocortex.FL-Isocortex.ASC-Output', 10) # this port is unused in this sample
+        # self.make_out_port('Isocortex.FL-Isocortex.DVC-Output', 10) # this port is unused in this sample
+        # self.make_in_port('Isocortex.ASC-Isocortex.FL-Input', 10)　# this port is unused in this sample
+        self.make_in_port('BG-Isocortex#FL-Input', 1)  # action
+        self.make_in_port('RB-Isocortex#FL-Input', 1)  # reward
 
         self.results['Isocortex#FL-UB-Output'] = [np.array([0]), 0]
 
@@ -375,12 +357,12 @@ class FLComponent(brica1.Component):
     def fire(self):
         action = self.get_in_port('BG-Isocortex#FL-Input').buffer
         reward = self.get_in_port('RB-Isocortex#FL-Input').buffer
-
+        print 'FL action: ', action
+        print 'FL last_action: ', self.last_action
         self.results['Isocortex#FL-MO-Output'] = action
         self.results['Isocortex#FL-UB-Output'] = [self.last_action, reward]
 
         self.last_action = action
-
 
 
 class RBComponent(brica1.Component):
@@ -398,15 +380,7 @@ class RBComponent(brica1.Component):
         self.results['RB-BG-Output'] = reward
 
 
-'''
 class MOComponent(brica1.Component):
     def __init__(self):
         super(MOComponent, self).__init__()
-        # self.set_map('Isocortex.FL-MO-Input', 'Env-Action')
         self.make_in_port('Isocortex#FL-MO-Input', 1)
-        self.make_out_port('MO-ENV-Output', 1)
-
-    def fire(self):
-        action = self.get_in_port('Isocortex#FL-MO-Input').buffer
-        self.results['MO-ENV-Output'] = action
-'''
