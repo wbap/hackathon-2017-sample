@@ -1,26 +1,17 @@
-import os
 import argparse
-import cherrypy
-import random
 import cPickle as pickle
-
-# Message Unpacking
-import msgpack
 import io
+import os
+
+import brica1
+import cherrypy
+import msgpack
+import numpy as np
 from PIL import Image
 from PIL import ImageOps
 
-import numpy as np
-
-from ml_module_brical import BGComponent, VVCComponent, UBComponent, FLComponent
-
-from cnn_feature_extractor import CnnFeatureExtractor
-from cnn_dqn_agent import CnnDqnAgent
-
-import brica1
-import brical
-
-
+from agent.cognitive import interpreter
+from agent.ml.cnn_feature_extractor import CnnFeatureExtractor
 
 
 def unpack(payload, depth_image_count=1, depth_image_dim=32*32):
@@ -65,8 +56,8 @@ class Root(object):
             print("pickle.dump finished")
 
 
-        self.nb = brical.NetworkBuilder()
-        f = open('Hackathon2017WBRA.json')
+        self.nb = interpreter.NetworkBuilder()
+        f = open('config/WholeBrainReferenceArchitecture.json')
         self.nb.load_file(f)
         self.agents = {}
         self.schedulers = {}
@@ -82,7 +73,7 @@ class Root(object):
     @cherrypy.expose()
     def flush(self, identifier):
 
-        agent_builder = brical.AgentBuilder()
+        agent_builder = interpreter.AgentBuilder()
         self.agents[identifier] = agent_builder.create_agent(self.nb)
         modules = agent_builder.get_modules()
         self.schedulers[identifier] = brica1.VirtualTimeScheduler(self.agents[identifier])
@@ -106,7 +97,7 @@ class Root(object):
         body = cherrypy.request.body.read()
         reward, observation = unpack(body)
 
-        agent_builder = brical.AgentBuilder()
+        agent_builder = interpreter.AgentBuilder()
 
         if identifier not in self.agents:
 

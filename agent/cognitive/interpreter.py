@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-brical.py
+interpreter.py
 =====
 
 This module contains the class `NetworkBuilder` and `AgentkBuilder` which interprets
@@ -16,13 +16,11 @@ the contents of BriCA language files.
 
 # TODO: import, subports
 
+import json
 import os
 import sys
-import numpy
-import brica1
-import json
-import ml_module_brical
 
+import brica1
 
 debug = False #True
 

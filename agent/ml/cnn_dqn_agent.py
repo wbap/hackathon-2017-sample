@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
-import six.moves.cPickle as pickle
 import copy
 import os
+
 import numpy as np
+import six.moves.cPickle as pickle
 from chainer import cuda
 
-from cnn_feature_extractor import CnnFeatureExtractor
-from q_net import QNet
+from agent.ml.cnn_feature_extractor import CnnFeatureExtractor
+from agent.ml.q_net import QNet
 
 
 class CnnDqnAgent(object):
