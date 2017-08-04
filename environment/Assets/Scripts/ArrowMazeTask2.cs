@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 
 public class ArrowMazeTask2 : Task {
-	int waited = 0;
+	int waitedTime = 0;
+	bool waited = false;
 
 	public override string Name() { return "Arrow Maze Task 2"; }
 	public override string Next() { return "ArrowMazeTask3"; }
@@ -22,16 +23,16 @@ public class ArrowMazeTask2 : Task {
 	}
 
 	void Update() {
-		float x = agent.transform.position.z;
+		float x = agent.transform.position.x;
 
-		if(0.0f <= x && x <= 2.0f) {
-			if(waited >= 2 * 60) {
-				rewardCount += 1;
+		if(0.0f <= x && x <= 4.0f) {
+			if(!waited && (waitedTime >= 2 * 60)) {
 				Reward.Add(2.0F);
+				waited = true;
 			}
-			waited += 1;
+			waitedTime += 1;
 		} else {
-			waited = 0;
+			waitedTime = 0;
 		}
 		Reward.Add(-0.001F);
 	}
