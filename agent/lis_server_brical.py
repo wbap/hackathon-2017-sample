@@ -67,6 +67,7 @@ class Root(object):
         self.mo_components = {}     # motor output
         self.rb_components = {}     # reward generator
 
+
     @cherrypy.expose()
     def flush(self, identifier):
 
@@ -179,14 +180,13 @@ class Root(object):
         if identifier not in self.agents:
             return str(-1)
 
-        current_time = self.schedulers[identifier].step()
-        self.ub_components
-        self.ub_components[identifier].end_episode()
-        self.ub_components[identifier].output(current_time)
-        self.bg_components[identifier].input(current_time)
-        self.bg_components[identifier].agent_end(reward)
+        action = self.mo_components[identifier].get_in_port('Isocortex#FL-MO-Input').buffer[0]
+        self.ub_components[identifier].end(action, reward)
+        self.ub_components[identifier].output(self.ub_components[identifier].last_output_time)
+        self.bg_components[identifier].input(self.bg_components[identifier].last_input_time)
+        self.bg_components[identifier].end(reward)
 
-        return str(self.mo_components[identifier].get_in_port('Isocortex#FL-MO-Input').buffer[0])
+        return str(action)
 
 
 def main(args):
