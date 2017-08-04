@@ -420,7 +420,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 010cc83baf2654737ab6ddfc83dbe83d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Reward: 0
 --- !u!136 &215569008
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1122,6 +1121,10 @@ Prefab:
     - target: {fileID: 4136326157012334, guid: 32e43cb64bad84168aa73bbe60701eea, type: 2}
       propertyPath: m_LocalPosition.z
       value: 11.040001
+      objectReference: {fileID: 0}
+    - target: {fileID: 4456059719031274, guid: 32e43cb64bad84168aa73bbe60701eea, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 32e43cb64bad84168aa73bbe60701eea, type: 2}
