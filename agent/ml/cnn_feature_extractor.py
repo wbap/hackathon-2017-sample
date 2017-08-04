@@ -8,19 +8,21 @@ from chainer import cuda
 import chainer.functions as F
 from chainer.links import caffe
 
+from config.model import DEFAULT_MEAN_IMAGE
+
 
 class CnnFeatureExtractor:
     def __init__(self, gpu, model, model_type, out_dim):
         self.gpu = gpu
-        self.model = 'bvlc_alexnet.caffemodel'
-        self.model_type = 'alexnet'
+        self.model = model
+        self.model_type = model_type
         self.batchsize = 1
         self.out_dim = out_dim
 
         if self.gpu >= 0:
             cuda.check_cuda_available()
 
-        print('Loading Caffe model file %s...' % self.model, file = sys.stderr)
+        print('Loading Caffe model file %s...' % self.model, file=sys.stderr)
         self.func = caffe.CaffeFunction(self.model)
         print('Loaded', file=sys.stderr)
         if self.gpu >= 0:
@@ -29,12 +31,11 @@ class CnnFeatureExtractor:
 
         if self.model_type == 'alexnet':
             self.in_size = 227
-            mean_image = np.load('ilsvrc_2012_mean.npy')
+            mean_image = np.load(DEFAULT_MEAN_IMAGE)
             del self.func.layers[15:23]
             self.outname = 'pool5'
-            #del self.func.layers[13:23]
-            #self.outname = 'conv5'
-
+            # del self.func.layers[13:23]
+            # self.outname = 'conv5'
             
         cropwidth = 256 - self.in_size
         start = cropwidth // 2
@@ -55,7 +56,7 @@ class CnnFeatureExtractor:
         x_data = xp.asarray(x_batch)
 
         if self.gpu >= 0:
-            x_data=cuda.to_gpu(x_data)
+            x_data = cuda.to_gpu(x_data)
         
         x = chainer.Variable(x_data, volatile=True)
         feature = self.predict(x)
@@ -67,9 +68,3 @@ class CnnFeatureExtractor:
             feature = feature.data.reshape(self.out_dim)
 
         return feature * 255.0
-
-     
-
-
-    
-

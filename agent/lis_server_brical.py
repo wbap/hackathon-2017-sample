@@ -1,26 +1,20 @@
-import os
 import argparse
-import cherrypy
-import random
 import cPickle as pickle
-
-# Message Unpacking
-import msgpack
 import io
+import os
+
+import brica1
+import cherrypy
+import msgpack
+import numpy as np
 from PIL import Image
 from PIL import ImageOps
 
-import numpy as np
+from cognitive import interpreter
+from ml.cnn_feature_extractor import CnnFeatureExtractor
 
-from ml_module_brical import BGComponent, VVCComponent, UBComponent, FLComponent
-
-from cnn_feature_extractor import CnnFeatureExtractor
-from cnn_dqn_agent import CnnDqnAgent
-
-import brica1
-import brical
-
-
+from config import BRICA_CONFIG_FILE
+from config.model import CNN_FEATURE_EXTRACTOR, CAFFE_MODEL, MODEL_TYPE
 
 
 def unpack(payload, depth_image_count=1, depth_image_dim=32*32):
@@ -42,31 +36,26 @@ def unpack(payload, depth_image_count=1, depth_image_dim=32*32):
 
 
 use_gpu = -1
-cnn_feature_extractor = 'alexnet_feature_extractor.pickle'
-model = 'bvlc_alexnet.caffemodel'
-model_type = 'alexnet'
 depth_image_dim = 32 * 32
 depth_image_count = 1
 image_feature_dim = 256 * 6 * 6
 image_feature_count = 1
-depth_image_count = 1
 feature_output_dim = (depth_image_dim * depth_image_count) + (image_feature_dim * image_feature_count)
 
 
 class Root(object):
     def __init__(self, **kwargs):
-        if os.path.exists(cnn_feature_extractor):
-            print("loading... " + cnn_feature_extractor),
-            self.feature_extractor = pickle.load(open(cnn_feature_extractor))
+        if os.path.exists(CNN_FEATURE_EXTRACTOR):
+            print("loading... " + CNN_FEATURE_EXTRACTOR),
+            self.feature_extractor = pickle.load(open(CNN_FEATURE_EXTRACTOR))
             print("done")
         else:
-            self.feature_extractor = CnnFeatureExtractor(use_gpu, model, model_type, image_feature_dim)
-            pickle.dump(self.feature_extractor, open(cnn_feature_extractor, 'w'))
+            self.feature_extractor = CnnFeatureExtractor(use_gpu, CAFFE_MODEL, MODEL_TYPE, image_feature_dim)
+            pickle.dump(self.feature_extractor, open(CNN_FEATURE_EXTRACTOR, 'w'))
             print("pickle.dump finished")
 
-
-        self.nb = brical.NetworkBuilder()
-        f = open('Hackathon2017WBRA.json')
+        self.nb = interpreter.NetworkBuilder()
+        f = open(BRICA_CONFIG_FILE)
         self.nb.load_file(f)
         self.agents = {}
         self.schedulers = {}
@@ -78,25 +67,25 @@ class Root(object):
         self.mo_components = {}     # motor output
         self.rb_components = {}     # reward generator
 
-
     @cherrypy.expose()
     def flush(self, identifier):
 
-        agent_builder = brical.AgentBuilder()
+        agent_builder = interpreter.AgentBuilder()
         self.agents[identifier] = agent_builder.create_agent(self.nb)
         modules = agent_builder.get_modules()
         self.schedulers[identifier] = brica1.VirtualTimeScheduler(self.agents[identifier])
 
         # set components
         self.v1_components[identifier] = modules['WBAH2017WBRA.Isocortex#V1'].get_component('WBAH2017WBRA.Isocortex#V1')
-        self.vvc_components[identifier] = modules['WBAH2017WBRA.Isocortex#VVC'].get_component('WBAH2017WBRA.Isocortex#VVC')
+        self.vvc_components[identifier] = modules['WBAH2017WBRA.Isocortex#VVC'].get_component(
+            'WBAH2017WBRA.Isocortex#VVC')
         self.bg_components[identifier] = modules['WBAH2017WBRA.BG'].get_component('WBAH2017WBRA.BG')
         self.ub_components[identifier] = modules['WBAH2017WBRA.UB'].get_component('WBAH2017WBRA.UB')
         self.fl_components[identifier] = modules['WBAH2017WBRA.Isocortex#FL'].get_component('WBAH2017WBRA.Isocortex#FL')
         self.mo_components[identifier] = modules['WBAH2017WBRA.MO'].get_component('WBAH2017WBRA.MO')
         self.rb_components[identifier] = modules['WBAH2017WBRA.RB'].get_component('WBAH2017WBRA.RB')
 
-        #set feature_extractor
+        # set feature_extractor
         self.vvc_components[identifier].set_model(self.feature_extractor)
 
         self.schedulers[identifier].update()
@@ -106,7 +95,7 @@ class Root(object):
         body = cherrypy.request.body.read()
         reward, observation = unpack(body)
 
-        agent_builder = brical.AgentBuilder()
+        agent_builder = interpreter.AgentBuilder()
 
         if identifier not in self.agents:
 
@@ -116,15 +105,18 @@ class Root(object):
             self.schedulers[identifier] = brica1.VirtualTimeScheduler(self.agents[identifier])
 
             # set components
-            self.v1_components[identifier] = modules['WBAH2017WBRA.Isocortex#V1'].get_component('WBAH2017WBRA.Isocortex#V1')
-            self.vvc_components[identifier] = modules['WBAH2017WBRA.Isocortex#VVC'].get_component('WBAH2017WBRA.Isocortex#VVC')
+            self.v1_components[identifier] = modules['WBAH2017WBRA.Isocortex#V1'].get_component(
+                'WBAH2017WBRA.Isocortex#V1')
+            self.vvc_components[identifier] = modules['WBAH2017WBRA.Isocortex#VVC'].get_component(
+                'WBAH2017WBRA.Isocortex#VVC')
             self.bg_components[identifier] = modules['WBAH2017WBRA.BG'].get_component('WBAH2017WBRA.BG')
             self.ub_components[identifier] = modules['WBAH2017WBRA.UB'].get_component('WBAH2017WBRA.UB')
-            self.fl_components[identifier] = modules['WBAH2017WBRA.Isocortex#FL'].get_component('WBAH2017WBRA.Isocortex#FL')
+            self.fl_components[identifier] = modules['WBAH2017WBRA.Isocortex#FL'].get_component(
+                'WBAH2017WBRA.Isocortex#FL')
             self.mo_components[identifier] = modules['WBAH2017WBRA.MO'].get_component('WBAH2017WBRA.MO')
             self.rb_components[identifier] = modules['WBAH2017WBRA.RB'].get_component('WBAH2017WBRA.RB')
 
-            #set feature_extractor
+            # set feature_extractor
             self.vvc_components[identifier].set_model(self.feature_extractor)
 
             # set interval of each components
@@ -178,7 +170,6 @@ class Root(object):
         self.schedulers[identifier].step()
 
         return str(self.mo_components[identifier].get_in_port('Isocortex#FL-MO-Input').buffer[0])
-
 
     @cherrypy.expose
     def reset(self, identifier):
