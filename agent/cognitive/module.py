@@ -144,8 +144,6 @@ class FLComponent(brica1.Component):
     def fire(self):
         action = self.get_in_port('BG-Isocortex#FL-Input').buffer
         reward = self.get_in_port('RB-Isocortex#FL-Input').buffer
-        print 'FL action: ', action
-        print 'FL last_action: ', self.last_action
         self.results['Isocortex#FL-MO-Output'] = action
         self.results['Isocortex#FL-UB-Output'] = [self.last_action, reward]
 

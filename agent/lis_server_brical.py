@@ -10,8 +10,8 @@ import numpy as np
 from PIL import Image
 from PIL import ImageOps
 
-from agent.cognitive import interpreter
-from agent.ml.cnn_feature_extractor import CnnFeatureExtractor
+from cognitive import interpreter
+from ml.cnn_feature_extractor import CnnFeatureExtractor
 
 from config import BRICA_CONFIG_FILE
 from config.model import CNN_FEATURE_EXTRACTOR, CAFFE_MODEL, MODEL_TYPE
