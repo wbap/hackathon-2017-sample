@@ -35,7 +35,16 @@ def unpack(payload, depth_image_count=1, depth_image_dim=32*32):
     return reward, observation
 
 
-use_gpu = -1
+def unpack_reset(payload):
+    dat = msgpack.unpackb(payload)
+    reward = dat['reward']
+    success = dat['success']
+    failure = dat['failure']
+    elapsed = dat['elapsed']
+
+    return reward, success, failure, elapsed
+
+use_gpu = int(os.getenv('GPU', '-1'))
 depth_image_dim = 32 * 32
 depth_image_count = 1
 image_feature_dim = 256 * 6 * 6
@@ -175,7 +184,7 @@ class Root(object):
     @cherrypy.expose
     def reset(self, identifier):
         body = cherrypy.request.body.read()
-        reward, observation = unpack(body)
+        reward, success, failure, elapsed = unpack_reset(body)
 
         if identifier not in self.agents:
             return str(-1)
