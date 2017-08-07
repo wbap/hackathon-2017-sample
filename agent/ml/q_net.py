@@ -15,11 +15,15 @@ class QNet:
     data_size = 10**5  # Data size of history. original: 10^6
     hist_size = 1  # original: 4
 
-    def __init__(self, use_gpu, enable_controller, dim):
+    def __init__(self, use_gpu, enable_controller, dim, epsilon, epsilon_delta, min_eps):
         self.use_gpu = use_gpu
         self.num_of_actions = len(enable_controller)
         self.enable_controller = enable_controller
         self.dim = dim
+        self.epsilon = epsilon
+        self.epsilon_delta = epsilon_delta
+        self.min_eps = min_eps
+        self.time = 0
 
         print("Initializing Q-Network...")
 
@@ -167,3 +171,67 @@ class QNet:
 
     def action_to_index(self, action):
         return self.enable_controller.index(action)
+
+    def start(self, feature):
+        self.state = np.zeros((self.hist_size, self.dim), dtype=np.uint8)
+        self.state[0] = feature
+
+        state_ = np.asanyarray(self.state.reshape(1, self.hist_size, self.dim), dtype=np.float32)
+        if self.use_gpu >= 0:
+            state_ = cuda.to_gpu(state_)
+
+        # Generate an Action e-greedy
+        action, q_now = self.e_greedy(state_, self.epsilon)
+        return_action = action
+
+        return return_action
+
+    def update_model(self, replayed_experience):
+        if replayed_experience[0]:
+            self.optimizer.zero_grads()
+            loss, _ = self.forward(replayed_experience[1], replayed_experience[2],
+                                        replayed_experience[3], replayed_experience[4], replayed_experience[5])
+            loss.backward()
+            self.optimizer.update()
+
+        # Target model update
+        if self.initial_exploration < self.time and np.mod(self.time, self.target_model_update_freq) == 0:
+            print("Model Updated")
+            self.target_model_update()
+
+        self.time += 1
+        return int(self.time)
+
+    def step(self, features):
+        if self.hist_size == 4:
+            self.state = np.asanyarray([self.state[1], self.state[2], self.state[3], features], dtype=np.uint8)
+        elif self.hist_size == 2:
+            self.state = np.asanyarray([self.state[1], features], dtype=np.uint8)
+        elif self.hist_size == 1:
+            self.state = np.asanyarray([features], dtype=np.uint8)
+        else:
+            print("self.DQN.hist_size err")
+
+        state_ = np.asanyarray(self.state.reshape(1, self.hist_size, self.dim), dtype=np.float32)
+        if self.use_gpu >= 0:
+            state_ = cuda.to_gpu(state_)
+
+        # Exploration decays along the time sequence
+        if self.initial_exploration < self.time:
+            self.epsilon -= self.epsilon_delta
+            if self.epsilon < self.min_eps:
+                self.epsilon = self.min_eps
+            eps = self.epsilon
+        else:  # Initial Exploation Phase
+            print("Initial Exploration : %d/%d steps" % (self.time, self.initial_exploration)),
+            eps = 1.0
+
+        # Generate an Action by e-greedy action selection
+        action, q_now = self.e_greedy(state_, eps)
+
+        if self.use_gpu >= 0:
+            q_max = np.max(q_now.get())
+        else:
+            q_max = np.max(q_now)
+
+        return action, eps, q_max
