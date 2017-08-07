@@ -93,50 +93,6 @@ class QNet:
         loss = F.mean_squared_error(td_clip, zero_val)
         return loss, q
 
-    def stock_experience(self, time, state, action, reward, state_dash, episode_end_flag):
-        data_index = time % self.data_size
-
-        if episode_end_flag is True:
-            self.d[0][data_index] = state
-            self.d[1][data_index] = action
-            self.d[2][data_index] = reward
-        else:
-            self.d[0][data_index] = state
-            self.d[1][data_index] = action
-            self.d[2][data_index] = reward
-            self.d[3][data_index] = state_dash
-        self.d[4][data_index] = episode_end_flag
-
-    def experience_replay(self, time):
-        if self.initial_exploration < time:
-            # Pick up replay_size number of samples from the Data
-            if time < self.data_size:  # during the first sweep of the History Data
-                replay_index = np.random.randint(0, time, (self.replay_size, 1))
-            else:
-                replay_index = np.random.randint(0, self.data_size, (self.replay_size, 1))
-
-            s_replay = np.ndarray(shape=(self.replay_size, self.hist_size, self.dim), dtype=np.float32)
-            a_replay = np.ndarray(shape=(self.replay_size, 1), dtype=np.uint8)
-            r_replay = np.ndarray(shape=(self.replay_size, 1), dtype=np.float32)
-            s_dash_replay = np.ndarray(shape=(self.replay_size, self.hist_size, self.dim), dtype=np.float32)
-            episode_end_replay = np.ndarray(shape=(self.replay_size, 1), dtype=np.bool)
-            for i in xrange(self.replay_size):
-                s_replay[i] = np.asarray(self.d[0][replay_index[i]], dtype=np.float32)
-                a_replay[i] = self.d[1][replay_index[i]]
-                r_replay[i] = self.d[2][replay_index[i]]
-                s_dash_replay[i] = np.array(self.d[3][replay_index[i]], dtype=np.float32)
-                episode_end_replay[i] = self.d[4][replay_index[i]]
-
-            if self.use_gpu >= 0:
-                s_replay = cuda.to_gpu(s_replay)
-                s_dash_replay = cuda.to_gpu(s_dash_replay)
-
-            # Gradient-based update
-            self.optimizer.zero_grads()
-            loss, _ = self.forward(s_replay, a_replay, r_replay, s_dash_replay, episode_end_replay)
-            loss.backward()
-            self.optimizer.update()
-
     def q_func(self, state):
         h4 = F.relu(self.model.l4(state / 255.0))
         q = self.model.q_value(h4)

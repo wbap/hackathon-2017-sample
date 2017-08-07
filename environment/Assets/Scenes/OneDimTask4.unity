@@ -387,7 +387,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 010cc83baf2654737ab6ddfc83dbe83d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Reward: 0
 --- !u!136 &766798282
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -454,7 +453,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d5c6856bea8347f8b4c0651a790aae2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ManualOverride: 1
+  ManualOverride: 0
   Paralyzed: 0
 --- !u!82 &766798287
 AudioSource:

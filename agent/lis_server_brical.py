@@ -150,7 +150,6 @@ class Root(object):
             self.mo_components[identifier].sleep = 5000
             self.fl_components[identifier].sleep = 5000
 
-            # self.agents[identifier].add_submodule()
             self.schedulers[identifier].update()
 
         # set observation in v1 for extracting feature vector using vcc
