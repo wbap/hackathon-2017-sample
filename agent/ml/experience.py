@@ -3,6 +3,7 @@
 import numpy as np
 from chainer import cuda
 
+
 class Experience:
     def __init__(self, use_gpu=0, data_size=10**5, replay_size=32, hist_size=1, initial_exploration=10**3, dim=10240):
 
@@ -19,7 +20,6 @@ class Experience:
                   np.zeros((self.data_size, 1), dtype=np.int8),
                   np.zeros((self.data_size, self.hist_size, self.dim), dtype=np.uint8),
                   np.zeros((self.data_size, 1), dtype=np.bool)]
-
 
     def stock(self, time, state, action, reward, state_dash, episode_end_flag):
         data_index = time % self.data_size
@@ -65,7 +65,6 @@ class Experience:
 
         else:
             return replay_start, 0, 0, 0, 0, False
-
 
     def end_episode(self, time, last_state, action, reward):
         self.stock(time, last_state, action, reward, last_state, True)
