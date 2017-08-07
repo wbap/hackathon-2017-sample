@@ -203,7 +203,6 @@ class Root(object):
     @cherrypy.expose
     def reset(self, identifier):
         body = cherrypy.request.body.read()
-        inbound_logger.info('body: {}'.format(body))
         reward, success, failure, elapsed = unpack_reset(body)
 
         inbound_logger.info('reward: {}, success: {}, failure: {}, elapsed: {}'.format(
