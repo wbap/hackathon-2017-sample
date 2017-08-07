@@ -29,8 +29,19 @@ public class AgentBehaviour : MonoBehaviour {
         return packer.Pack(msg);
     }
 
+    byte[] GenerateResetMessage() {
+        ResetMessage msg = new ResetMessage();
+
+        msg.reward = PlayerPrefs.GetFloat("Reward");
+        msg.success = PlayerPrefs.GetInt("Success Count");
+        msg.failure = PlayerPrefs.GetInt("Failure Count");
+        msg.elapsed = PlayerPrefs.GetInt("Elapsed Time");
+
+        return packer.Pack(msg);
+    }
+
     public void Reset() {
-        client.Reset(GenerateMessage());
+        client.Reset(GenerateResetMessage());
     }
 
     void Start () {

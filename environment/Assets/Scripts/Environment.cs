@@ -40,6 +40,8 @@ public class Environment : MonoBehaviour {
             PlayerPrefs.SetInt("Failure Count", 0);
         }
 
+        PlayerPrefs.SetInt("Elapsed Time", elapsed);
+
         successCount = PlayerPrefs.GetInt("Success Count");
         failureCount = PlayerPrefs.GetInt("Failure Count");
 
@@ -78,5 +80,7 @@ public class Environment : MonoBehaviour {
         }
 
         elapsed += 1;
+
+        PlayerPrefs.SetInt("Elapsed Time", elapsed);
     }
 }

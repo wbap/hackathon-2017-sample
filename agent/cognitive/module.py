@@ -11,6 +11,7 @@ from chainer import cuda
 from ml.cnn_feature_extractor import CnnFeatureExtractor
 from ml.q_net import QNet
 
+use_gpu = int(os.getenv('GPU', '-1'))
 
 class VVCComponent(brica1.Component):
     image_feature_count = 1
@@ -19,7 +20,7 @@ class VVCComponent(brica1.Component):
     model_type = 'alexnet'
     image_feature_dim = 256 * 6 * 6
 
-    def __init__(self, use_gpu=True, n_output=10240, n_input=1):
+    def __init__(self, n_output=10240, n_input=1):
         # image_feature_count = 1
         super(VVCComponent, self).__init__()
 
@@ -79,7 +80,7 @@ class BGComponent(brica1.Component):
     epsilon_delta = 1.0 / 10 ** 4.4
     min_eps = 0.1
 
-    def __init__(self, n_input=10240, n_output=1, use_gpu=True):
+    def __init__(self, n_input=10240, n_output=1):
         super(BGComponent, self).__init__()
         self.use_gpu = use_gpu
         self.time = 0
