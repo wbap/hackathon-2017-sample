@@ -8,7 +8,10 @@ from chainer import cuda
 import chainer.functions as F
 from chainer.links import caffe
 
-from config.model import DEFAULT_MEAN_IMAGE
+from config.model import DEFAULT_MEAN_IMAGE, MODEL_TYPE
+from config.log import APP_KEY
+import logging
+app_logger = logging.getLogger(APP_KEY)
 
 
 class CnnFeatureExtractor:
@@ -22,14 +25,15 @@ class CnnFeatureExtractor:
         if self.gpu >= 0:
             cuda.check_cuda_available()
 
-        print('Loading Caffe model file %s...' % self.model, file=sys.stderr)
+        app_logger.info('Loading Caffe model file {}...'.format(self.model))
         self.func = caffe.CaffeFunction(self.model)
-        print('Loaded', file=sys.stderr)
+        app_logger.info('Loaded')
+
         if self.gpu >= 0:
             cuda.get_device(self.gpu).use()
             self.func.to_gpu()
 
-        if self.model_type == 'alexnet':
+        if self.model_type == MODEL_TYPE:
             self.in_size = 227
             mean_image = np.load(DEFAULT_MEAN_IMAGE)
             del self.func.layers[15:23]

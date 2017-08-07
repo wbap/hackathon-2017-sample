@@ -6,19 +6,25 @@ import os
 import brica1.gym
 import numpy as np
 import six.moves.cPickle as pickle
-# from chainer import cuda
 
 from ml.cnn_feature_extractor import CnnFeatureExtractor
 from ml.q_net import QNet
 from ml.experience import Experience
 
+from config.model import CNN_FEATURE_EXTRACTOR, CAFFE_MODEL, MODEL_TYPE
+
+from config.log import APP_KEY
+import logging
+app_logger = logging.getLogger(APP_KEY)
+
 use_gpu = int(os.getenv('GPU', '-1'))
+
 
 class VVCComponent(brica1.Component):
     image_feature_count = 1
-    cnn_feature_extractor = 'alexnet_feature_extractor.pickle'
-    model = 'bvlc_alexnet.caffemodel'
-    model_type = 'alexnet'
+    cnn_feature_extractor = CNN_FEATURE_EXTRACTOR
+    model = CAFFE_MODEL
+    model_type = MODEL_TYPE
     image_feature_dim = 256 * 6 * 6
 
     def __init__(self, n_output=10240, n_input=1):
@@ -34,14 +40,14 @@ class VVCComponent(brica1.Component):
 
     def load_model(self, cnn_feature_extractor):
         if os.path.exists(cnn_feature_extractor):
-            print("loading... " + cnn_feature_extractor),
+            app_logger.info("loading... {}".format(cnn_feature_extractor))
             self.feature_extractor = pickle.load(open(cnn_feature_extractor))
-            print("done")
+            app_logger.info("done")
         else:
             self.feature_extractor = CnnFeatureExtractor(self.use_gpu, self.model, self.model_type,
                                                          self.image_feature_dim)
             pickle.dump(self.feature_extractor, open(cnn_feature_extractor, 'w'))
-            print("pickle.dump finished")
+            app_logger.info("pickle.dump finished")
 
     def _observation_to_featurevec(self, observation):
         # TODO clean
@@ -58,7 +64,7 @@ class VVCComponent(brica1.Component):
                          observation["depth"][2],
                          observation["depth"][3]]
         else:
-            print("not supported: number of camera")
+            app_logger.error("not supported: number of camera")
 
     def fire(self):
         observation = self.get_in_port('Isocortex#V1-Isocortex#VVC-Input').buffer
@@ -85,7 +91,7 @@ class BGComponent(brica1.Component):
         return action
 
     def end(self, reward):  # Episode Terminated
-        print('episode finished. Reward:%.1f / Epsilon:%.6f' % (reward, self.epsilon))
+        app_logger.info('episode finished. Reward:{:.1f} / Epsilon:{:.6f}'.format(reward, self.epsilon))
         self.replayed_experience = self.get_in_port('UB-BG-Input').buffer
         self.q_net.update_model(self.replayed_experience)
 
@@ -97,8 +103,9 @@ class BGComponent(brica1.Component):
         action, eps, q_max = self.q_net.step(features)
         time = self.q_net.update_model(self.replayed_experience)
 
-        print('Step:%d  Action:%d  Reward:%.1f  Epsilon:%.6f  Q_max:%3f' % (
-            time, self.q_net.action_to_index(action), reward, eps, q_max))
+        app_logger.info('Step:{}  Action:{}  Reward:{:.1f}  Epsilon:{:.6f}  Q_max:{:3f}'.format(
+            time, self.q_net.action_to_index(action), reward[0], eps, q_max
+        ))
 
         self.epsilon = eps
         self.results['BG-Isocortex#FL-Output'] = np.array([action])
@@ -107,14 +114,14 @@ class BGComponent(brica1.Component):
 class UBComponent(brica1.Component):
     def __init__(self):
         super(UBComponent, self).__init__()
-        use_gpu = 0
+        self.use_gpu = use_gpu
         data_size = 10**5
         replay_size = 32
         hist_size = 1
         initial_exploration = 10**3
         dim = 10240
-        self.experience = Experience(use_gpu=use_gpu, data_size=data_size, replay_size=replay_size,
-                            hist_size=hist_size, initial_exploration=initial_exploration, dim=dim)
+        self.experience = Experience(use_gpu=self.use_gpu, data_size=data_size, replay_size=replay_size,
+                                     hist_size=hist_size, initial_exploration=initial_exploration, dim=dim)
         vvc_input = np.zeros((hist_size, dim), dtype=np.uint8)
         self.last_state = vvc_input
         self.state = vvc_input

@@ -5,6 +5,10 @@ import numpy as np
 from chainer import cuda, FunctionSet, Variable, optimizers
 import chainer.functions as F
 
+from config.log import APP_KEY
+import logging
+app_logger = logging.getLogger(APP_KEY)
+
 
 class QNet:
     # Hyper-Parameters
@@ -25,7 +29,7 @@ class QNet:
         self.min_eps = min_eps
         self.time = 0
 
-        print("Initializing Q-Network...")
+        app_logger.info("Initializing Q-Network...")
 
         hidden_dim = 256
         self.model = FunctionSet(
@@ -110,13 +114,13 @@ class QNet:
 
         if np.random.rand() < epsilon:
             index_action = np.random.randint(0, self.num_of_actions)
-            print(" Random"),
+            app_logger.info(" Random")
         else:
             if self.use_gpu >= 0:
                 index_action = np.argmax(q.get())
             else:
                 index_action = np.argmax(q)
-            print("#Greedy"),
+            app_logger.info("#Greedy")
         return self.index_to_action(index_action), q
 
     def target_model_update(self):
@@ -152,11 +156,11 @@ class QNet:
 
         # Target model update
         if self.initial_exploration < self.time and np.mod(self.time, self.target_model_update_freq) == 0:
-            print("Model Updated")
+            app_logger.info("Model Updated")
             self.target_model_update()
 
         self.time += 1
-        return int(self.time)
+        app_logger.info(self.time)
 
     def step(self, features):
         if self.hist_size == 4:
@@ -166,7 +170,7 @@ class QNet:
         elif self.hist_size == 1:
             self.state = np.asanyarray([features], dtype=np.uint8)
         else:
-            print("self.DQN.hist_size err")
+            app_logger.error("self.DQN.hist_size err")
 
         state_ = np.asanyarray(self.state.reshape(1, self.hist_size, self.dim), dtype=np.float32)
         if self.use_gpu >= 0:
@@ -179,7 +183,7 @@ class QNet:
                 self.epsilon = self.min_eps
             eps = self.epsilon
         else:  # Initial Exploation Phase
-            print("Initial Exploration : %d/%d steps" % (self.time, self.initial_exploration)),
+            app_logger.info("Initial Exploration : {}/{} steps".format(self.time, self.initial_exploration))
             eps = 1.0
 
         # Generate an Action by e-greedy action selection

@@ -16,6 +16,15 @@ from ml.cnn_feature_extractor import CnnFeatureExtractor
 from config import BRICA_CONFIG_FILE
 from config.model import CNN_FEATURE_EXTRACTOR, CAFFE_MODEL, MODEL_TYPE
 
+import logging
+import logging.config
+from config.log import CHERRYPY_ACCESS_LOG, CHERRYPY_ERROR_LOG, LOGGING, APP_KEY, INBOUND_KEY, OUTBOUND_KEY
+logging.config.dictConfig(LOGGING)
+
+inbound_logger = logging.getLogger(INBOUND_KEY)
+app_logger = logging.getLogger(APP_KEY)
+outbound_logger = logging.getLogger(OUTBOUND_KEY)
+
 
 def unpack(payload, depth_image_count=1, depth_image_dim=32*32):
     dat = msgpack.unpackb(payload)
@@ -55,13 +64,13 @@ feature_output_dim = (depth_image_dim * depth_image_count) + (image_feature_dim 
 class Root(object):
     def __init__(self, **kwargs):
         if os.path.exists(CNN_FEATURE_EXTRACTOR):
-            print("loading... " + CNN_FEATURE_EXTRACTOR),
+            app_logger.info("loading... {}".format(CNN_FEATURE_EXTRACTOR))
             self.feature_extractor = pickle.load(open(CNN_FEATURE_EXTRACTOR))
-            print("done")
+            app_logger.info("done")
         else:
             self.feature_extractor = CnnFeatureExtractor(use_gpu, CAFFE_MODEL, MODEL_TYPE, image_feature_dim)
             pickle.dump(self.feature_extractor, open(CNN_FEATURE_EXTRACTOR, 'w'))
-            print("pickle.dump finished")
+            app_logger.info("pickle.dump finished")
 
         self.nb = interpreter.NetworkBuilder()
         f = open(BRICA_CONFIG_FILE)
@@ -105,6 +114,7 @@ class Root(object):
         body = cherrypy.request.body.read()
         reward, observation = unpack(body)
 
+        inbound_logger.info('reward: {}, depth: {}'.format(reward, observation['depth']))
         agent_builder = interpreter.AgentBuilder()
 
         if identifier not in self.agents:
@@ -159,10 +169,15 @@ class Root(object):
         self.vvc_components[identifier].output(self.vvc_components[identifier].last_output_time)
         features = self.vvc_components[identifier].get_out_port('Isocortex#VVC-BG-Output').buffer
 
+        if app_logger.isEnabledFor(logging.DEBUG):
+            app_logger.debug('feature: {}'.format(features))
+
         # agent start
         self.bg_components[identifier].get_in_port('Isocortex#VVC-BG-Input').buffer = features
         action = self.bg_components[identifier].start()
         self.schedulers[identifier].step()
+
+        outbound_logger.info('action: {}'.format(action))
         return str(action)
 
     @cherrypy.expose
@@ -170,6 +185,7 @@ class Root(object):
         body = cherrypy.request.body.read()
         reward, observation = unpack(body)
 
+        inbound_logger.info('reward: {}, depth: {}'.format(reward, observation['depth']))
         if identifier not in self.agents:
             return str(-1)
 
@@ -178,13 +194,18 @@ class Root(object):
         self.rb_components[identifier].get_out_port('RB-BG-Output').buffer = np.array([reward])
         self.schedulers[identifier].step()
 
-        return str(self.mo_components[identifier].get_in_port('Isocortex#FL-MO-Input').buffer[0])
+        result = self.mo_components[identifier].get_in_port('Isocortex#FL-MO-Input').buffer[0]
+
+        outbound_logger.info('result: {}'.format(result))
+        return str(result)
 
     @cherrypy.expose
     def reset(self, identifier):
         body = cherrypy.request.body.read()
         reward, success, failure, elapsed = unpack_reset(body)
 
+        inbound_logger.info('reward: {}, success: {}, failure: {}, elapsed: {}'.format(
+            reward, success, failure, elapsed))
         if identifier not in self.agents:
             return str(-1)
 
@@ -194,11 +215,14 @@ class Root(object):
         self.bg_components[identifier].input(self.bg_components[identifier].last_input_time)
         self.bg_components[identifier].end(reward)
 
-        return str(action)
+        result = self.mo_components[identifier].get_in_port('Isocortex#FL-MO-Input').buffer[0]
+        outbound_logger.info('result: {}'.format(result))
+        return str(result)
 
 
 def main(args):
-    cherrypy.config.update({'server.socket_host': args.host, 'server.socket_port': args.port})
+    cherrypy.config.update({'server.socket_host': args.host, 'server.socket_port': args.port, 'log.screen': False,
+                            'log.access_file': CHERRYPY_ACCESS_LOG, 'log.error_file': CHERRYPY_ERROR_LOG})
     cherrypy.quickstart(Root())
 
 if __name__ == '__main__':
