@@ -407,7 +407,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d5c6856bea8347f8b4c0651a790aae2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ManualOverride: 1
+  ManualOverride: 0
   Paralyzed: 0
 --- !u!114 &215569007
 MonoBehaviour:
