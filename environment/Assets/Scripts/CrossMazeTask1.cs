@@ -53,8 +53,4 @@ public class CrossMazeTask1 : Task {
 	public override bool Done(int success, int failure) {
 		return (success - failure) > 21;
 	}
-
-	void Update() {
-		Reward.Add(-0.001F);
-	}
 }

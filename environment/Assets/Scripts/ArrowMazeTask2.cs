@@ -34,6 +34,5 @@ public class ArrowMazeTask2 : Task {
 		} else {
 			waitedTime = 0;
 		}
-		Reward.Add(-0.001F);
 	}
 }

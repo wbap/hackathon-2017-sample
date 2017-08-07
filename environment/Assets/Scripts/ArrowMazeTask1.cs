@@ -23,17 +23,16 @@ public class ArrowMazeTask1 : Task {
 	}
 
 	void Update() {
-		float x = agent.transform.position.x;
+            float x = agent.transform.position.x;
 
-		if(0.0f <= x && x <= 4.0f) {
-			if(!waited && (waitedTime >= 2 * 60)) {
-				Reward.Add(2.0F);
-				waited = true;
-			}
-			waitedTime += 1;
-		} else {
-			waitedTime = 0;
-		}
-		Reward.Add(-0.001F);
+            if(0.0f <= x && x <= 4.0f) {
+                if(!waited && (waitedTime >= 2 * 60)) {
+                    Reward.Add(2.0F);
+                    waited = true;
+                }
+                waitedTime += 1;
+            } else {
+                waitedTime = 0;
+            }
 	}
 }
