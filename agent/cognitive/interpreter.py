@@ -22,6 +22,11 @@ import sys
 
 import brica1
 
+import logging
+from config.log import APP_KEY
+
+app_logger = logging.getLogger(APP_KEY)
+
 debug = False  # True
 
 
@@ -73,11 +78,11 @@ class NetworkBuilder:
         try:
             jsn = json.load(file_object)
         except:
-            print >> sys.stderr, "ERROR: File could not be read!"
+            app_logger.error("File could not be read!")
             return False
 
         if "Header" not in jsn:
-            print >> sys.stderr, "ERROR: Header must be specified!"
+            app_logger.error("Header must be specified!")
             return False
         header = jsn["Header"]
 
@@ -87,26 +92,26 @@ class NetworkBuilder:
                 if "/" != import_file[0]:  # not full path
                     import_file = dir_name + "/" + import_file
                 if not os.path.isfile(import_file):
-                    print >> sys.stderr, "ERROR: JSON file %s not found!" % import_file
+                    app_logger.error("JSON file {} not found!".format(import_file))
                     return False
                 if os.path.abspath(import_file) in self.__load_files:
-                    print "Import file '%s' has been read!" % import_file
+                    app_logger.error("Import file {} has been read!".format(import_file))
                     continue
                 f = open(import_file)
-                if self.load_file(f) == False:
+                if self.load_file(f) is False:
                     return False
 
         if "Name" not in header:
-            print >> sys.stderr, "ERROR: Header name must be specified!"
+            app_logger.error("Header name must be specified!")
             return False
 
         if "Base" not in header:
-            print >> sys.stderr, "ERROR: Base name space must be specified!"
+            app_logger.error("Base name space must be specified!")
             return False
         self.base_name_space = header["Base"].strip()
 
         if "Type" not in header:
-            print >> sys.stderr, "ERROR: Type must be specified!"
+            app_logger.error("Type must be specified!")
             return False
         self.__type = header["Type"]
 
@@ -146,64 +151,62 @@ class NetworkBuilder:
         """
         for module_name in self.module_dictionary:
             if module_name not in self.unit_dic:
-                if debug:
-                    print "Creating " + module_name + "."
+                if app_logger.isEnabledFor(logging.DEBUG):
+                    app_logger.debug("Creating {}.".format(module_name))
                 self.unit_dic[module_name] = brica1.Module()  # New Module instance
 
         # SuperModules of consistency check
         for module, superModule in self.super_modules.items():
             if superModule not in self.module_dictionary:
-                print >> sys.stderr, "ERROR: Super Module '%s' is not defined!" % (superModule)
+                app_logger.error("Super Module {} is not defined!".format(superModule))
                 return False
             # Loop check
             if self.__loop_check(superModule, module):
-                print >> sys.stderr, "ERROR: Loop detected while trying to add " + module + \
-                                     " as a subunit to " + superModule + "!"
+                app_logger.error("Loop detected while trying to add {} as a subunit to {}!".format(module, superModule))
                 return False
 
         # SubModules of consistency check
         for superModule, subModules in self.sub_modules.items():
             for subModule in subModules:
                 if subModule not in self.module_dictionary:
-                    print >> sys.stderr, "ERROR: Sub Module '%s' is not defined!" % (subModule)
+                    app_logger.error("Sub Module {} is not defined!".format(subModule))
                     return False
                 # Loop check
                 if self.__loop_check(superModule, subModule):
-                    print >> sys.stderr, "ERROR: Loop detected while trying to add " + superModule + \
-                                         " as a subunit to " + subModule + "!"
+                    app_logger.error("Loop detected while trying to add {} as a subunit to {}!".format(
+                        superModule, subModule))
                     return False
 
         # Port of consistency check
         for module_name in self.module_dictionary:
             ports = self.module_dictionary[module_name]["Ports"]
             if len(ports) == 0:
-                print >> sys.stderr, "ERROR: The specified module '%s' does not have the port!" % module_name
+                app_logger.error("The specified module {} does not have the port!".format(module_name))
                 return False
             for port in ports:
                 if not module_name + "." + port in self.__ports:
-                    print >> sys.stderr, "ERROR: The specified module '%s' does not have the port!" % module_name
+                    app_logger.error("The specified module {} does not have the port!".format(module_name))
                     return False
 
         for port_name, v in self.__ports.items():
             # Fatal if the specified modules have not been defined.
-            if not "Module" in v:
-                print >> sys.stderr, "ERROR: Module is not defined in the port '%s'!" % port_name
+            if "Module" not in v:
+                app_logger.error("Module is not defined in the port {}!".format(port_name))
                 return False
 
             module_name = v["Module"]
             if module_name not in self.module_dictionary:
-                print >> sys.stderr, "ERROR: Specified module '%s' is not defined in the port '%s'!" % (
-                    module_name, port_name)
+                app_logger.error("Specified module {} is not defined in the port {}!".format(module_name, port_name))
                 return False
 
             # Fatal if the shape has not been defined.
             if "Shape" not in v:
-                print >> sys.stderr, "ERROR: Shape is not defined in the port '%s'!" % port_name
+                app_logger.error("Shape is not defined in the port {}!".format(port_name))
                 return False
 
             length = v["Shape"]
             if length < 1:
-                print >> sys.stderr, "ERROR: Incorrect length of Shape for the port '%s'!" % port_name
+                app_logger.error("Incorrect length of Shape for the port {}!".format(port_name))
                 return False
 
             # Fatal if the specified modules do not have the port, abort with a message.
@@ -211,30 +214,29 @@ class NetworkBuilder:
             pv = port_name.split(".")
             last_port_name = pv[len(pv) - 1]
             if last_port_name not in module["Ports"]:
-                print >> sys.stderr, "ERROR: Port '%s' is not defined in the module '%s'!" % (
-                    last_port_name, module_name)
+                app_logger.error("Port {} is not defined in the module {}!".format(last_port_name, module_name))
                 return False
 
             module = self.unit_dic[module_name]
             if v["IO"] == "Input":
                 module.make_in_port(last_port_name, length)
-                if debug:
-                    print "Creating an input port " + last_port_name + " (length " + str(
-                        length) + ") to " + module_name + "."
+                if app_logger.isEnabledFor(logging.DEBUG):
+                    app_logger.debug("Creating an input port {} (length {}) to {}.".format(
+                        last_port_name, length, module_name))
             elif v["IO"] == "Output":
                 module.make_out_port(last_port_name, length)
-                if debug:
-                    print "Creating an output port " + last_port_name + " (length " + str(
-                        length) + ") to " + module_name + "."
+                if app_logger.isEnabledFor(logging.DEBUG):
+                    app_logger.debug("Creating an output port {} (length {}) to {}.".format(
+                        last_port_name, length, module_name))
 
         # Connection of consistency check
         for k, v in self.__connections.items():
             # Fatal if the specified ports have not been defined.
             if not v[0] in self.__ports:
-                print >> sys.stderr, "ERROR: The specified port '%s' is not defined in connection '%s'." % (v[0], k)
+                app_logger.error("The specified port {} is not defined in connection {}.".format(v[0], k))
                 return False
             if not v[1] in self.__ports:
-                print >> sys.stderr, "ERROR: The specified port '%s' is not defined in connection '%s'." % (v[1], k)
+                app_logger.error("The specified port {} is not defined in connection {}.".format(v[1], k))
                 return False
 
             tp = v[0].split(".")
@@ -252,16 +254,16 @@ class NetworkBuilder:
                     fr_port_obj = self.unit_dic[from_unit].get_out_port(from_port)
                     to_port_obj = self.unit_dic[to_unit].get_in_port(to_port)
                     if fr_port_obj.buffer.shape != to_port_obj.buffer.shape:
-                        print >> sys.stderr, "ERROR: Port dimension unmatch!"
+                        app_logger.error("Port dimension unmatch!")
                         return False
                     # Creating a connection
                     brica1.connect((self.unit_dic[from_unit], from_port), (self.unit_dic[to_unit], to_port))
-                    if debug:
-                        print "Creating a connection from " + from_port + " of " + from_unit + " to " + to_port + \
-                              " of " + to_unit + "."
+                    if app_logger.isEnabledFor(logging.DEBUG):
+                        app_logger.debug("Creating a connection from {} of {} to {} of {}".format(
+                            from_port, from_unit, to_port, to_unit))
                 except:
-                    print >> sys.stderr, "ERROR: adding a connection from " + from_unit + " to " + to_unit + \
-                                         " on the same level but not from an output port to an input port!"
+                    app_logger.error("adding a connection from {} to {} on the same level"
+                                     " but not from an output port to an input port!".format(from_unit, to_unit))
                     return False
             # else if from_unit is the direct super module of the to_unit
             elif to_unit in self.__super_sub_modules and self.__super_sub_modules[to_unit] == from_unit:
@@ -269,16 +271,17 @@ class NetworkBuilder:
                     fr_port_obj = self.unit_dic[from_unit].get_in_port(from_port)
                     to_port_obj = self.unit_dic[to_unit].get_in_port(to_port)
                     if fr_port_obj.buffer.shape != to_port_obj.buffer.shape:
-                        print >> sys.stderr, "ERROR: Port dimension unmatch!"
+                        app_logger.error("Port dimension unmatch!")
                         return False
                     # Creating a connection (alias)
                     self.unit_dic[to_unit].alias_in_port(self.unit_dic[from_unit], from_port, to_port)
-                    if debug:
-                        print "Creating a connection (alias) from " + from_port + " of " + from_unit + \
-                              " to " + to_port + " of " + to_unit + "."
+                    if app_logger.isEnabledFor(logging.DEBUG):
+                        app_logger.debug("Creating a connection (alias) from {} of {} to {} of {}.".format(
+                            from_port, from_unit, to_port, to_unit
+                        ))
                 except:
-                    print >> sys.stderr, "ERROR: Error adding a connection from the super module " + from_unit + \
-                                         " to " + to_unit + " but not from an input port to an input port!"
+                    app_logger.error("Error adding a connection from the super module {} to {} "
+                                     "but not from an input port to an input port!".format(from_unit, to_unit))
                     return False
             # else if to_unit is the direct super module of the from_unit
             elif from_unit in self.__super_sub_modules and self.__super_sub_modules[from_unit] == to_unit:
@@ -286,22 +289,23 @@ class NetworkBuilder:
                     fr_port_obj = self.unit_dic[from_unit].get_out_port(from_port)
                     to_port_obj = self.unit_dic[to_unit].get_out_port(to_port)
                     if fr_port_obj.buffer.shape != to_port_obj.buffer.shape:
-                        print >> sys.stderr, "ERROR: Port dimension unmatch!"
+                        app_logger.error("Port dimension unmatch!")
                         return False
                     # Creating a connection (alias)
                     self.unit_dic[from_unit].alias_out_port(self.unit_dic[to_unit], to_port, from_port)
-                    if debug:
-                        print "Creating a connection (alias) from " + from_port + " of " + from_unit + \
-                              " to " + to_port + " of " + to_unit + "."
+                    if app_logger.isEnabledFor(logging.DEBUG):
+                        app_logger.debug("Creating a connection (alias) from {} of {} to {} of {}.".format(
+                            from_port, from_unit, to_port, to_unit
+                        ))
                 except:
-                    print >> sys.stderr, "ERROR: Error adding a connection from " + from_unit + \
-                                         " to its super module " + to_unit + \
-                                         " but not from an output port to an output port!"
+                    app_logger.error("Error adding a connection from {} to its super module {} "
+                                     "but not from an output port to an output port!".format(from_unit, to_unit))
                     return False
             # else connection level error!
             else:
-                print >> sys.stderr, "ERROR: Trying to add a connection between units " + from_unit + " and " + \
-                                     to_unit + " in a remote level!"
+                app_logger.error("Trying to add a connection between units {} and {} in a remote level!".format(
+                    from_unit, to_unit
+                ))
                 return False
 
         return True
@@ -317,8 +321,8 @@ class NetworkBuilder:
         for module_name, v in self.module_dictionary.items():
             implclass = v["ImplClass"]
             if implclass != "":
-                if debug:
-                    print "Use the existing ImplClass " + implclass + " for " + module_name + "."
+                if app_logger.isEnabledFor(logging.DEBUG):
+                    app_logger.debug("Use the existing ImplClass {} for {}.".format(implclass, module_name))
                 try:
                     component_instance = eval(implclass + '()')  # New ImplClass instance
                 except:
@@ -330,8 +334,7 @@ class NetworkBuilder:
                         Klass = getattr(mod, class_name)
                         component_instance = Klass()
                     except:
-                        print >> sys.stderr, "ERROR: Module " + module_name + \
-                                             " at the bottom not grounded as a Component!"
+                        app_logger.error("Module {} at the bottom not grounded as a Component!".format(module_name))
                         return False
                 try:
                     module = self.unit_dic[module_name]
@@ -345,7 +348,7 @@ class NetworkBuilder:
                         component_instance.make_out_port(port, length)
                         component_instance.alias_out_port(module, port, port)
                 except:
-                    print >> sys.stderr, "ERROR: Module " + module_name + " at the bottom not grounded as a Component!"
+                    app_logger.error("Module {} at the bottom not grounded as a Component!".format(module_name))
                     return False
         return True
 
@@ -362,18 +365,18 @@ class NetworkBuilder:
                 if self.__set_a_module(module) is False:
                     return False
         else:
-            print >> sys.stderr, "Warning: No `Modules` in the language file."
+            app_logger.warning("No Modules in the language file.")
 
         return True
 
     def __set_a_module(self, module):
         if "Name" not in module:
-            print >> sys.stderr, "ERROR: Module name must be specified!"
+            app_logger.error("Module name must be specified!")
             return False
 
         module_name = module["Name"].strip()
         if module_name == "":
-            print >> sys.stderr, "ERROR: Module name must be specified!"
+            app_logger.error("Module name must be specified!")
             return False
         module_name = self.__prefix_base_name_space(module_name)  # Prefixing the base name space
 
@@ -387,7 +390,7 @@ class NetworkBuilder:
         # Multiple registration
         if defined_module:
             for p in defined_module["Ports"]:
-                if not p in ports:
+                if p not in ports:
                     ports.append(p)
 
         implclass = ""
@@ -395,7 +398,7 @@ class NetworkBuilder:
             # if an implementation class is specified
             implclass = module["ImplClass"].strip()
         elif self.__type == "C":
-            print >> sys.stderr, "ERROR: ImplClass is necessary if the type C in the module " + module_name + "!"
+            app_logger.error("ImplClass is necessary if the type C in the module {}!".format(module_name))
             return False
         # Multiple registration
         if defined_module:
@@ -403,8 +406,8 @@ class NetworkBuilder:
                 implclass = defined_module["ImplClass"]
             else:
                 if defined_module["ImplClass"] != "":
-                    print "ImplClass '%s' of '%s' is replaced with '%s'." % (
-                        defined_module["ImplClass"], module_name, implclass)
+                    app_logger.warning("ImplClass {} of {} is replaced with {}.".format(
+                        defined_module["ImplClass"], module_name, implclass))
 
         self.module_dictionary[module_name] = {"Ports": ports, "ImplClass": implclass}
 
@@ -415,8 +418,8 @@ class NetworkBuilder:
         if supermodule != "":
             # Multiple registration
             if module_name in self.super_modules:
-                print "Super module '%s' of '%s' is replaced with '%s'." % (
-                    self.super_modules[module_name], module_name, supermodule)
+                app_logger.warning("Super module {} of {} is replaced with {}.".format(
+                    self.super_modules[module_name], module_name, supermodule))
             self.super_modules[module_name] = supermodule
             self.__super_sub_modules[module_name] = supermodule
 
@@ -424,7 +427,7 @@ class NetworkBuilder:
             for submodule in module["SubModules"]:
                 if submodule != "":
                     submodule = self.__prefix_base_name_space(submodule)
-                    if not module_name in self.sub_modules:
+                    if module_name not in self.sub_modules:
                         self.sub_modules[module_name] = []
                     self.sub_modules[module_name].append(submodule)
                     self.__super_sub_modules[submodule] = module_name
@@ -461,10 +464,10 @@ class NetworkBuilder:
         if "Ports" in jsn:
             ports = jsn["Ports"]
             for port in ports:
-                if self.__set_a_port(port) == False:
+                if self.__set_a_port(port) is False:
                     return False
         else:
-            print >> sys.stderr, "Warning: No `Ports` in the language file."
+            app_logger.warning("No Ports in the language file.")
 
         return True
 
@@ -472,14 +475,14 @@ class NetworkBuilder:
         if "Name" in port:
             port_name = port["Name"].strip()
         else:
-            print >> sys.stderr, "ERROR: Name not specified while adding a port!"
+            app_logger.error("Name not specified while adding a port!")
             return False
 
         if "Module" in port:
             port_module = port["Module"].strip()
             port_module = self.__prefix_base_name_space(port_module)
         else:
-            print >> sys.stderr, "ERROR: Module not specified while adding a port!"
+            app_logger.error("Module not specified while adding a port!")
             return False
         port_name = port_module + "." + port_name
 
@@ -490,34 +493,33 @@ class NetworkBuilder:
         # Multiple registration
         if defined_port:
             if port_module != defined_port["Module"]:
-                print >> sys.stderr, \
-                    "ERROR: Module '%s' defined in the port '%s' is already defined as a module '%s'." % \
-                    (port_module, port_name, self.__ports[port_name]["Module"])
+                app_logger.error("Module {} defined in the port {} is already defined as a module {}.".format(
+                    port_module, port_name, self.__ports[port_name]["Module"]))
                 return False
 
         if "Type" in port:
             port_type = port["Type"].strip()
             if port_type != "Input" and port_type != "Output":
-                print >> sys.stderr, "ERROR: Invalid port type '%s'!" % port_type
+                app_logger.error("Invalid port type {}!".format(port_type))
                 return False
             elif defined_port and port_type != defined_port["IO"]:
-                print >> sys.stderr, \
-                    "ERROR: The port type of port '%s' differs from previously defined port type!"  % port_name
+                app_logger.error("The port type of port {} differs from previously defined port type!".format(
+                    port_name))
                 return False
         else:
-            print >> sys.stderr, "ERROR: Type not specified while adding a port!"
+            app_logger.error("Type not specified while adding a port!")
             return False
 
         if "Shape" in port:
             shape = port["Shape"]
             if len(shape) != 1:
-                print >> sys.stderr, "ERROR: Shape supports only one-dimensional vector!"
+                app_logger.error("Shape supports only one-dimensional vector!")
                 return False
             if not isinstance(shape[0], int):
-                print >> sys.stderr, "ERROR: The value of the port is not a number!"
+                app_logger.error("The value of the port is not a number!")
                 return False
             if int(shape[0]) < 1:
-                print >> sys.stderr, "ERROR: Port dimension < 1!"
+                app_logger.error("Port dimension < 1!")
                 return False
             self.__ports[port_name] = {"IO": port_type, "Module": port_module, "Shape": shape[0]}
         else:
@@ -542,7 +544,7 @@ class NetworkBuilder:
                     return False
         else:
             if self.__type != "C":
-                print >> sys.stderr, "Warning: No `Connections` in the language file."
+                app_logger.warning("No Connections in the language file.")
 
         return True
 
@@ -550,7 +552,7 @@ class NetworkBuilder:
         if "Name" in connection:
             connection_name = connection["Name"]
         else:
-            print >> sys.stderr, "ERROR: Name not specified while adding a connection!"
+            app_logger.error("Name not specified while adding a connection!")
             return False
 
         defined_connection = None
@@ -561,33 +563,33 @@ class NetworkBuilder:
             from_unit = connection["FromModule"]
             from_unit = self.__prefix_base_name_space(from_unit)
         else:
-            print >> sys.stderr, "ERROR: FromModule not specified while adding a connection!"
+            app_logger.error("FromModule not specified while adding a connection!")
             return False
         if "FromPort" in connection:
             from_port = connection["FromPort"]
         else:
-            print >> sys.stderr, "ERROR: FromPort not specified while adding a connection!"
+            app_logger.error("FromPort not specified while adding a connection!")
             return False
         if "ToModule" in connection:
             to_unit = connection["ToModule"]
             to_unit = self.__prefix_base_name_space(to_unit)
         else:
-            print >> sys.stderr, "ERROR: ToModule not specified while adding a connection!"
+            app_logger.error("ToModule not specified while adding a connection!")
             return False
         if "ToPort" in connection:
             to_port = connection["ToPort"]
         else:
-            print >> sys.stderr, "ERROR: ToPort not specified while adding a connection!"
+            app_logger.error("ToPort not specified while adding a connection!")
             return False
 
         # Multiple registration
         if defined_connection and defined_connection[0] != to_unit + "." + to_port:
-            print >> sys.stderr, "ERROR: Defined port '%s' is different from the previous ones in connection '%s'!" % (
-                to_unit + "." + to_port, connection_name)
+            app_logger.error("Defined port {}.{} is different from the previous ones in connection {}!".format(
+                to_unit, to_port, connection_name))
             return False
         if defined_connection and defined_connection[1] != from_unit + "." + from_port:
-            print >> sys.stderr, "ERROR: Defined port '%s' is different from the previous ones in connection '%s'!" % (
-                from_unit + "." + from_port, connection_name)
+            app_logger.error("Defined port {}.{} is different from the previous ones in connection {}!".format(
+                from_unit, from_port, connection_name))
             return False
 
         if "Comment" in connection:
@@ -647,17 +649,17 @@ class AgentBuilder:
         for module, super_module in network.super_modules.items():
             if super_module in network.module_dictionary:
                 network.unit_dic[super_module].add_submodule(module, network.unit_dic[module])
-                if debug:
-                    print "Adding a module " + module + " to " + super_module + "."
+                if app_logger.isEnabledFor(logging.DEBUG):
+                    app_logger.debug("Adding a module {} to {}.".format(module, super_module))
 
         # Main logic
         top_module = brica1.Module()
         for unit_key in network.unit_dic.keys():
-            if not unit_key in network.super_modules:
+            if unit_key not in network.super_modules:
                 if isinstance(network.unit_dic[unit_key], brica1.Module):
                     top_module.add_submodule(unit_key, network.unit_dic[unit_key])
-                    if debug:
-                        print "Adding a module " + unit_key + " to a BriCA agent."
+                    if app_logger.isEnabledFor(logging.DEBUG):
+                        app_logger.debug("Adding a module {} to a BriCA agent.".format(unit_key))
         # agent = brica1.Agent(scheduler)
         agent = brica1.Agent()
         agent.add_submodule("__Runtime_Top_Module", top_module)
