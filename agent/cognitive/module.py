@@ -49,26 +49,9 @@ class VVCComponent(brica1.Component):
             pickle.dump(self.feature_extractor, open(cnn_feature_extractor, 'w'))
             app_logger.info("pickle.dump finished")
 
-    def _observation_to_featurevec(self, observation):
-        # TODO clean
-        if self.image_feature_count == 1:
-            return np.r_[self.feature_extractor.feature(observation["image"][0]),
-                         observation["depth"][0]]
-        elif self.image_feature_count == 4:
-            return np.r_[self.feature_extractor.feature(observation["image"][0]),
-                         self.feature_extractor.feature(observation["image"][1]),
-                         self.feature_extractor.feature(observation["image"][2]),
-                         self.feature_extractor.feature(observation["image"][3]),
-                         observation["depth"][0],
-                         observation["depth"][1],
-                         observation["depth"][2],
-                         observation["depth"][3]]
-        else:
-            app_logger.error("not supported: number of camera")
-
     def fire(self):
         observation = self.get_in_port('Isocortex#V1-Isocortex#VVC-Input').buffer
-        obs_array = self._observation_to_featurevec(observation)
+        obs_array = self.feature_extractor.feature(observation, self.image_feature_count)
 
         self.results['Isocortex#VVC-BG-Output'] = obs_array
         self.results['Isocortex#VVC-UB-Output'] = obs_array
