@@ -160,7 +160,7 @@ class QNet:
             self.target_model_update()
 
         self.time += 1
-        app_logger.info(self.time)
+        app_logger.info("step: {}".format(self.time))
 
     def step(self, features):
         if self.hist_size == 4:
