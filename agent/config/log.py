@@ -14,29 +14,32 @@ LOGGING = {
     'disable_existing_loggers': True,
     'formatters': {
         'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+            'format': '%(asctime)s [%(levelname)s] [%(module)s] %(process)d %(thread)d %(message)s'
+        },
+        'normal' : {
+            'format': '%(asctime)s [%(levelname)s] [%(module)s] %(message)s'
         },
         'simple': {
-            'format': '%(levelname)s %(message)s'
+            'format': '[%(levelname)s] %(message)s'
         },
     },
     'handlers': {
         'app': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
-            'formatter': 'verbose',
+            'formatter': 'normal',
             'filename': LOG_DIR + 'application.log'
         },
         'inbound': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'formatter': 'verbose',
+            'formatter': 'normal',
             'filename': LOG_DIR + 'inbound.log'
         },
         'outbound': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'formatter': 'verbose',
+            'formatter': 'normal',
             'filename': LOG_DIR + 'outbound.log'
         },
         'console': {
