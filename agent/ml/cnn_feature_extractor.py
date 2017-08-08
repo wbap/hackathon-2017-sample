@@ -74,16 +74,16 @@ class CnnFeatureExtractor:
         return feature * 255.0
 
     def feature(self, observation, image_feature_count=1):
-        features = []
+        image_features = []
         depth = []
         for i in image_feature_count:
-            features.append(self.__image_feature(observation["image"][i]))
+            image_features.append(self.__image_feature(observation["image"][i]))
             depth.append(observation["depth"][i])
 
         if image_feature_count == 1:
-            return np.r_[features[0], depth[0]]
+            return np.r_[image_features[0], depth[0]]
         elif image_feature_count == 4:
-            return np.r_[features[0], features[1], features[2], features[3],
+            return np.r_[image_features[0], image_features[1], image_features[2], image_features[3],
                          depth[0], depth[1], depth[2], depth[3]]
         else:
             app_logger.error("not supported: number of camera")
