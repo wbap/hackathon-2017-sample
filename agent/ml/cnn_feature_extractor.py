@@ -40,12 +40,12 @@ class CnnFeatureExtractor:
             self.outname = 'pool5'
             # del self.func.layers[13:23]
             # self.outname = 'conv5'
-            
+
         cropwidth = 256 - self.in_size
         start = cropwidth // 2
         stop = start + self.in_size
         self.mean_image = mean_image[:, start:stop, start:stop].copy()
-                
+
     def predict(self, x):
         y, = self.func(inputs={'data': x}, outputs=[self.outname], train=False)
         return y
@@ -61,7 +61,7 @@ class CnnFeatureExtractor:
 
         if self.gpu >= 0:
             x_data = cuda.to_gpu(x_data)
-        
+
         x = chainer.Variable(x_data, volatile=True)
         feature = self.predict(x)
 
@@ -76,7 +76,7 @@ class CnnFeatureExtractor:
     def feature(self, observation, image_feature_count=1):
         image_features = []
         depth = []
-        for i in image_feature_count:
+        for i in range(image_feature_count):
             image_features.append(self.__image_feature(observation["image"][i]))
             depth.append(observation["depth"][i])
 
