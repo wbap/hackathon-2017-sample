@@ -262,12 +262,6 @@ Transform:
   m_PrefabParentObject: {fileID: 4204529774648470, guid: cbdd0faf14d32436daed016e97289a72,
     type: 2}
   m_PrefabInternal: {fileID: 501096138}
---- !u!114 &215569004 stripped
-MonoBehaviour:
-  m_PrefabParentObject: {fileID: 114423617572456916, guid: 7807d5793a14e43459d66a7063f42614,
-    type: 2}
-  m_PrefabInternal: {fileID: 510096163}
-  m_Script: {fileID: 11500000, guid: a8dec010d855b420498da090cab1b95c, type: 3}
 --- !u!4 &215569014 stripped
 Transform:
   m_PrefabParentObject: {fileID: 483300, guid: 7807d5793a14e43459d66a7063f42614, type: 2}
@@ -327,7 +321,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 483300, guid: 7807d5793a14e43459d66a7063f42614, type: 2}
       propertyPath: m_LocalPosition.y
-      value: 1.12
+      value: 1.4
       objectReference: {fileID: 0}
     - target: {fileID: 483300, guid: 7807d5793a14e43459d66a7063f42614, type: 2}
       propertyPath: m_LocalPosition.z
@@ -352,11 +346,6 @@ Prefab:
     - target: {fileID: 483300, guid: 7807d5793a14e43459d66a7063f42614, type: 2}
       propertyPath: m_RootOrder
       value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114134973333138670, guid: 7807d5793a14e43459d66a7063f42614,
-        type: 2}
-      propertyPath: ManualOverride
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 7807d5793a14e43459d66a7063f42614, type: 2}
@@ -441,7 +430,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79b83c4e19cf44b469c809d19aa2fb08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  agent: {fileID: 215569004}
+  agent: {fileID: 1988797651}
 --- !u!114 &853956081
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -869,3 +858,9 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1630416949}
+--- !u!114 &1988797651 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 114775373361381970, guid: 7807d5793a14e43459d66a7063f42614,
+    type: 2}
+  m_PrefabInternal: {fileID: 510096163}
+  m_Script: {fileID: 11500000, guid: a8dec010d855b420498da090cab1b95c, type: 3}
