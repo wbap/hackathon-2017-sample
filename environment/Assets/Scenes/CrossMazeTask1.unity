@@ -430,7 +430,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79b83c4e19cf44b469c809d19aa2fb08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  agent: {fileID: 1988797651}
+  agent: {fileID: 907644390}
 --- !u!114 &853956081
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -462,6 +462,12 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &907644390 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 114017274969268940, guid: 7807d5793a14e43459d66a7063f42614,
+    type: 2}
+  m_PrefabInternal: {fileID: 510096163}
+  m_Script: {fileID: 11500000, guid: a8dec010d855b420498da090cab1b95c, type: 3}
 --- !u!1 &1013818245
 GameObject:
   m_ObjectHideFlags: 0
@@ -858,9 +864,3 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1630416949}
---- !u!114 &1988797651 stripped
-MonoBehaviour:
-  m_PrefabParentObject: {fileID: 114775373361381970, guid: 7807d5793a14e43459d66a7063f42614,
-    type: 2}
-  m_PrefabInternal: {fileID: 510096163}
-  m_Script: {fileID: 11500000, guid: a8dec010d855b420498da090cab1b95c, type: 3}
