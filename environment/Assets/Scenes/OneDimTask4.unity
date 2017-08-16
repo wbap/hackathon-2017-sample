@@ -147,18 +147,15 @@ Prefab:
       propertyPath: m_RootOrder
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 14349114, guid: 7807d5793a14e43459d66a7063f42614, type: 2}
-      propertyPath: m_Center.y
-      value: 1.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 114197114229233650, guid: 7807d5793a14e43459d66a7063f42614,
-        type: 2}
-      propertyPath: ManualOverride
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 7807d5793a14e43459d66a7063f42614, type: 2}
   m_IsPrefabParent: 0
+--- !u!114 &122469941 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 114017274969268940, guid: 7807d5793a14e43459d66a7063f42614,
+    type: 2}
+  m_PrefabInternal: {fileID: 122469940}
+  m_Script: {fileID: 11500000, guid: a8dec010d855b420498da090cab1b95c, type: 3}
 --- !u!1 &560804972
 GameObject:
   m_ObjectHideFlags: 0
@@ -797,7 +794,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b226868a9f7b4eb9a5a8f80332b392a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  agent: {fileID: 0}
+  agent: {fileID: 122469941}
   reward: {fileID: 1000010065798232, guid: 1c43f5b083a864bcb8be9d120eb757fe, type: 2}
 --- !u!114 &2101396360
 MonoBehaviour:
