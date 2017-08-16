@@ -1,37 +1,15 @@
 ﻿using UnityEngine;
 
-public class OneDimTask7 : Task {
+public class OneDimTask8 : Task {
     public GameObject reward;
-    public ShapeSelector selector;
 
     bool rewardShown = false;
     int waited = 0;
-    int elapsed = 0;
 
-    Range range;
+	Range range = Range.Red;
 
-    public override string Name() { return "One Dimensional Task 6"; }
+    public override string Name() { return "One Dimensional Task 8-a"; }
     public override string Next() { return "OneDimTask8"; }
-
-    public override void Initialize(int success, int failure) {
-        int phase = (int)(Random.value * 3);
-
-        selector.Selection = phase;
-
-        switch(phase) {
-        case 0:
-            range = Range.Red;
-            break;
-        case 1:
-            range = Range.Green;
-            break;
-        case 2:
-            range = Range.Blue;
-            break;
-        default:
-            break;
-        }
-    }
 
     public override bool Success() {
         return rewardCount > 1;
@@ -47,15 +25,6 @@ public class OneDimTask7 : Task {
 
     void Update() {
         float z = agent.transform.position.z;
-
-        if(elapsed < 120) {
-            agent.controller.Paralyzed = true;
-            selector.Visible = true;
-            elapsed += 1;
-        } else {
-            agent.controller.Paralyzed = false;
-            selector.Visible = false;
-        }
 
         if(range.start <= z && z <= range.end) {
             if(!rewardShown && waited >= 2 * 60) {
