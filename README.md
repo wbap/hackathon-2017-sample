@@ -30,9 +30,9 @@ AI エージェントは脳を参考にしたアーキテクチャ(BriCA言語)�
 
 ## Demo
 
-エージェントの起動から Unity 環境の起動まではこちらを参照してください。
+エージェントの起動から Unity 環境の起動までは下の画像を参照してください。
 
-![動画キャプチャ](https://github.com/wiki/wbap/lis2017/image/demo_capture.gif "動画キャプチャ")
+![動画キャプチャ](https://github.com/wbap/lis2017/raw/image/images/demo_capture.gif)
 
 ## Requirement
 
