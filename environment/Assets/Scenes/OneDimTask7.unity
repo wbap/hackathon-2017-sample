@@ -203,7 +203,7 @@ Prefab:
     - target: {fileID: 114197114229233650, guid: 7807d5793a14e43459d66a7063f42614,
         type: 2}
       propertyPath: ManualOverride
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 7807d5793a14e43459d66a7063f42614, type: 2}
