@@ -54,7 +54,7 @@ public class AgentBehaviour : MonoBehaviour {
         sensor = GetComponent<AgentSensor>();
     }
 	
-    void Update () {
+    void LateUpdate () {
         if(!created) {
             if(!client.Calling) {
                 client.Create(GenerateMessage());
