@@ -29,19 +29,24 @@ public class AgentBehaviour : MonoBehaviour {
         return packer.Pack(msg);
     }
 
-    byte[] GenerateResetMessage() {
+    byte[] GenerateResetMessage(bool finished) {
         ResetMessage msg = new ResetMessage();
 
         msg.reward = PlayerPrefs.GetFloat("Reward");
         msg.success = PlayerPrefs.GetInt("Success Count");
         msg.failure = PlayerPrefs.GetInt("Failure Count");
         msg.elapsed = PlayerPrefs.GetInt("Elapsed Time");
+        msg.finished = finished;
 
         return packer.Pack(msg);
     }
 
     public void Reset() {
-        client.Reset(GenerateResetMessage());
+        client.Reset(GenerateResetMessage(false));
+    }
+
+    public void Finish() {
+        client.Reset(GenerateResetMessage(true));
     }
 
     void Start () {

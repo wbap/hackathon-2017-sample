@@ -52,8 +52,9 @@ def unpack_reset(payload):
     success = dat['success']
     failure = dat['failure']
     elapsed = dat['elapsed']
+    finished = dat['finished']
 
-    return reward, success, failure, elapsed
+    return reward, success, failure, elapsed, finished
 
 use_gpu = int(os.getenv('GPU', '-1'))
 depth_image_dim = 32 * 32
@@ -109,7 +110,7 @@ class Root(object):
     @cherrypy.expose
     def reset(self, identifier):
         body = cherrypy.request.body.read()
-        reward, success, failure, elapsed = unpack_reset(body)
+        reward, success, failure, elapsed, finished = unpack_reset(body)
 
         inbound_logger.info('reward: {}, success: {}, failure: {}, elapsed: {}'.format(
             reward, success, failure, elapsed))
@@ -118,7 +119,6 @@ class Root(object):
 
         outbound_logger.info('result: {}'.format(result))
         return str(result)
-
 
 def main(args):
     cherrypy.config.update({'server.socket_host': args.host, 'server.socket_port': args.port, 'log.screen': False,
