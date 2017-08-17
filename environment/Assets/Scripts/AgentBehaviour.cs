@@ -64,10 +64,9 @@ public class AgentBehaviour : MonoBehaviour {
             if(client.HasAction) {
                 string action = client.GetAction();
                 controller.PerformAction(action);
-            } else {
-                if(!client.Calling) {
-                    client.Step(GenerateMessage());
-                }
+            }
+            if(!client.Calling) {
+                client.Step(GenerateMessage());
             }
         }
     }
