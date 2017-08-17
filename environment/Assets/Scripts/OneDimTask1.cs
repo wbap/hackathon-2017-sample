@@ -2,7 +2,6 @@
 
 public class OneDimTask1 : Task {
     public override string Name() { return "One Dimensional Task 1"; }
-    public override string Next() { return "OneDimTask2"; }
 
     public override void Initialize(int success, int failure) {
         float z = (float)(22 - (success - failure));

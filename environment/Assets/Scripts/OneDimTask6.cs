@@ -9,7 +9,6 @@ public class OneDimTask6 : Task {
     Range range;
 
     public override string Name() { return "One Dimensional Task 6"; }
-    public override string Next() { return "OneDimTask7"; }
 
     public override void Initialize(int success, int failure) {
         switch((success + failure) % 3) {

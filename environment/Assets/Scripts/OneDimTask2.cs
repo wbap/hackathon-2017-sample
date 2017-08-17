@@ -6,7 +6,6 @@ public class OneDimTask2 : Task {
     bool rewardShown = false;
 
     public override string Name() { return "One Dimensional Task 2"; }
-    public override string Next() { return "OneDimTask3"; }
 
     public override bool Success() {
         return rewardCount > 1;

@@ -11,7 +11,6 @@ public class OneDimTask7 : Task {
     Range range;
 
     public override string Name() { return "One Dimensional Task 6"; }
-    public override string Next() { return "CrossMazeTask1"; }
 
     public override void Initialize(int success, int failure) {
         int phase = (int)(Random.value * 3);

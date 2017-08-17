@@ -6,7 +6,6 @@ public abstract class Task : MonoBehaviour {
     protected int rewardCount = 0;
 
     public abstract string Name();
-    public abstract string Next();
 
     public virtual void Initialize(int success, int failure) {
         return;

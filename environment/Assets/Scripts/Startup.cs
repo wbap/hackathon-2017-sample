@@ -9,12 +9,38 @@ public class Startup : MonoBehaviour {
     float MovementSpeed;
 
     [SerializeField]
-    string FirstScene = "OneDimTask1";
+    string[] SceneNames = {
+        "OneDimTask1",
+        "OneDimTask2",
+        "OneDimTask3",
+        "OneDimTask4",
+        "OneDimTask5",
+        "OneDimTask6",
+        "OneDimTask7",
+
+        "CrossMazeTask1",
+        "CrossMazeTask2",
+
+        "ArrowMazeTask1",
+        "ArrowMazeTask2",
+        "ArrowMazeTask3"
+    };
+
+    [SerializeField]
+    bool ManualOverride = false;
 
     void Start () {
         PlayerPrefs.DeleteAll();
         PlayerPrefs.SetFloat("Rotation Speed", RotationSpeed);
         PlayerPrefs.SetFloat("Movement Speed", MovementSpeed);
-        EditorSceneManager.LoadScene(FirstScene);
+        PlayerPrefs.SetInt("Manual Override", ManualOverride ? 1 : 0);
+
+        for(int i = 0; i < SceneNames.Length; ++i) {
+            Scenes.Set(i, SceneNames[i]);
+        }
+
+        Scenes.Init();
+
+        EditorSceneManager.LoadScene(Scenes.First());
     }
 }
