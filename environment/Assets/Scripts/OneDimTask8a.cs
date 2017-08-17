@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class OneDimTask8 : Task {
+public class OneDimTask8a : Task {
     public GameObject reward;
 
     bool rewardShown = false;
@@ -9,7 +9,7 @@ public class OneDimTask8 : Task {
 	Range range = Range.Red;
 
     public override string Name() { return "One Dimensional Task 8-a"; }
-    public override string Next() { return "OneDimTask8"; }
+    public override string Next() { return "OneDimTask8b"; }
 
     public override bool Success() {
         return rewardCount > 1;
