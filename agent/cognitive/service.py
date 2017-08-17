@@ -61,41 +61,35 @@ class AgentService:
         self.fl_components[identifier].interval = 1000
 
         # set offset
-        self.vvc_components[identifier].offset = 0
-        self.bg_components[identifier].offset = 1000
-        self.fl_components[identifier].offset = 2000
-        self.ub_components[identifier].offset = 3000
-        self.mo_components[identifier].offset = 4000
+        self.vvc_components[identifier].offset = 1000
+        self.bg_components[identifier].offset = 2000
+        self.fl_components[identifier].offset = 3000
+        self.ub_components[identifier].offset = 4000
+        self.mo_components[identifier].offset = 5000
 
         # set sleep
-        self.vvc_components[identifier].sleep = 5000
-        self.bg_components[identifier].sleep = 5000
-        self.ub_components[identifier].sleep = 5000
-        self.mo_components[identifier].sleep = 5000
-        self.fl_components[identifier].sleep = 5000
+        self.vvc_components[identifier].sleep = 4000
+        self.bg_components[identifier].sleep = 4000
+        self.ub_components[identifier].sleep = 4000
+        self.mo_components[identifier].sleep = 4000
+        self.fl_components[identifier].sleep = 4000
 
         self.schedulers[identifier].update()
 
 
-    def create(self, reward, observation, identifier):
+    def create(self, reward, feature, identifier):
         if identifier not in self.agents:
             self.initialize(identifier)
 
-        # set observation in v1 for extracting feature vector using vcc
-        self.v1_components[identifier].get_out_port('Isocortex#V1-Isocortex#VVC-Output').buffer = observation
-        self.vvc_components[identifier].input(self.vvc_components[identifier].last_input_time)
-        self.vvc_components[identifier].fire()
-        self.vvc_components[identifier].output(self.vvc_components[identifier].last_output_time)
-        features = self.vvc_components[identifier].get_out_port('Isocortex#VVC-BG-Output').buffer
+        # agent start
+        self.bg_components[identifier].get_in_port('Isocortex#VVC-BG-Input').buffer = feature
+        action = self.bg_components[identifier].start()
+        self.fl_components[identifier].last_action = action
+        self.ub_components[identifier].last_state = feature
 
         if app_logger.isEnabledFor(logging.DEBUG):
             app_logger.debug('feature: {}'.format(features))
 
-        # agent start
-        self.bg_components[identifier].get_in_port('Isocortex#VVC-BG-Input').buffer = features
-        action = self.bg_components[identifier].start()
-        self.schedulers[identifier].step()
-        
         return action
 
     def step(self, reward, observation, identifier):
@@ -104,7 +98,7 @@ class AgentService:
         self.v1_components[identifier].get_out_port('Isocortex#V1-Isocortex#VVC-Output').buffer = observation
         self.rb_components[identifier].get_out_port('RB-Isocortex#FL-Output').buffer = np.array([reward])
         self.rb_components[identifier].get_out_port('RB-BG-Output').buffer = np.array([reward])
-        self.schedulers[identifier].step()
+        self.schedulers[identifier].step(5000)
 
         action = self.mo_components[identifier].get_in_port('Isocortex#FL-MO-Input').buffer[0]
 
