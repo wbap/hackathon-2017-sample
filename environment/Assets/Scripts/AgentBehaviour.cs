@@ -61,13 +61,12 @@ public class AgentBehaviour : MonoBehaviour {
                 created = true;
             }
         } else {
-            if(!client.Calling) {
-                client.Step(GenerateMessage());
-            }
-
             if(client.HasAction) {
                 string action = client.GetAction();
                 controller.PerformAction(action);
+            }
+            if(!client.Calling) {
+                client.Step(GenerateMessage());
             }
         }
     }
