@@ -10,4 +10,5 @@ public class ResetMessage {
     public int success = 0;
     public int failure = 0;
     public int elapsed = 0;
+    public bool finished = false;
 }

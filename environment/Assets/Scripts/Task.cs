@@ -20,6 +20,10 @@ public abstract class Task : MonoBehaviour {
         agent.behaviour.Reset();
     }
 
+    public virtual void Finish() {
+        agent.behaviour.Finish();
+    }
+
     protected virtual void OnRewardCollision() {
         rewardCount += 1;
         Reward.Add(2.0F);
