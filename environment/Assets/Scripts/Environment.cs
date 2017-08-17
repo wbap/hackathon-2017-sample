@@ -60,9 +60,11 @@ public class Environment : MonoBehaviour {
             task.Reset();
 
             if(task.Done(successCount, failureCount)) {
+                task.Finish();
+
                 PlayerPrefs.SetInt("Success Count", 0);
                 PlayerPrefs.SetInt("Failure Count", 0);
-                EditorSceneManager.LoadScene(task.Next());
+                EditorSceneManager.LoadScene(Scenes.Next());
                 return;
             }
 

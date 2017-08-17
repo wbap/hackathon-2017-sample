@@ -5,8 +5,6 @@ public class AgentController : MonoBehaviour {
     float rotationSpeed = 10.0F;
     float movementSpeed = 1.0F;
 
-    public bool ManualOverride = false;
-
     [HideInInspector]
     public bool Paralyzed = false;
 
@@ -25,6 +23,8 @@ public class AgentController : MonoBehaviour {
         CharacterController controller = GetComponent<CharacterController>();
 
         if(Paralyzed) return;
+
+        bool ManualOverride = PlayerPrefs.GetInt("Manual Override") == 1 ? true : false;
 
         if(ManualOverride) {
             if(Input.GetKey(KeyCode.RightArrow)) {
