@@ -64,7 +64,7 @@ public class Environment : MonoBehaviour {
 
                 PlayerPrefs.SetInt("Success Count", 0);
                 PlayerPrefs.SetInt("Failure Count", 0);
-                EditorSceneManager.LoadScene(task.Next());
+                EditorSceneManager.LoadScene(Scenes.Next());
                 return;
             }
 

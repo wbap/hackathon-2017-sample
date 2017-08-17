@@ -2,7 +2,6 @@
 
 public class CrossMazeTask2 : Task {
 	public override string Name() { return "Cross Maze Task 2"; }
-	public override string Next() { return "ArrowMazeTask1"; }
 
 	public override void Initialize(int success, int failure) {
 		// 仕様「S地点は中心で、向きはランダム」を実現する

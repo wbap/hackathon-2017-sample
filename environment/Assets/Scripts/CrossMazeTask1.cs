@@ -2,7 +2,6 @@
 
 public class CrossMazeTask1 : Task {
 	public override string Name() { return "Cross Maze Task 1"; }
-	public override string Next() { return "CrossMazeTask2"; }
 
 	public override void Initialize(int success, int failure) {
 		// 仕様「S地点は3ヶ所あり、ランダムにスタート地点が決定する」を実現する

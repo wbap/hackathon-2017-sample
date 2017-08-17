@@ -5,7 +5,6 @@ public class ArrowMazeTask2 : Task {
 	bool waited = false;
 
 	public override string Name() { return "Arrow Maze Task 2"; }
-	public override string Next() { return "ArrowMazeTask3"; }
 
 	public override void Initialize(int success, int failure) {
 	}
