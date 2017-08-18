@@ -21,6 +21,8 @@ import logging
 import logging.config
 from config.log import CHERRYPY_ACCESS_LOG, CHERRYPY_ERROR_LOG, LOGGING, APP_KEY, INBOUND_KEY, OUTBOUND_KEY
 from cognitive.service import AgentService
+from tool.result_logger import ResultLogger
+
 logging.config.dictConfig(LOGGING)
 
 inbound_logger = logging.getLogger(INBOUND_KEY)
@@ -76,7 +78,7 @@ class Root(object):
             app_logger.info("pickle.dump finished")
 
         self.agent_service = AgentService(BRICA_CONFIG_FILE, self.feature_extractor)
-
+        self.result_logger = ResultLogger()
 
     @cherrypy.expose()
     def flush(self, identifier):
@@ -89,6 +91,7 @@ class Root(object):
 
         inbound_logger.info('reward: {}, depth: {}'.format(reward, observation['depth']))
         feature = self.feature_extractor.feature(observation)
+        self.result_logger.initialize()
         result = self.agent_service.create(reward, feature, identifier)
 
         outbound_logger.info('action: {}'.format(result))
@@ -103,7 +106,7 @@ class Root(object):
         inbound_logger.info('reward: {}, depth: {}'.format(reward, observation['depth']))
 
         result = self.agent_service.step(reward, observation, identifier)
-
+        self.result_logger.step()
         outbound_logger.info('result: {}'.format(result))
         return str(result)
 
@@ -116,6 +119,7 @@ class Root(object):
             reward, success, failure, elapsed))
 
         result = self.agent_service.reset(reward, identifier)
+        self.result_logger.report(success, failure, finished)
 
         outbound_logger.info('result: {}'.format(result))
         return str(result)
