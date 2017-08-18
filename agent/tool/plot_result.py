@@ -20,7 +20,7 @@ df_episode = pd.read_csv(episode_file)
 labels = df_task.index
 label_name = []
 for l in labels:
-    label_name.append('task' + str(l))
+    label_name.append('task' + str(l+1))
 ax = df_task.ix[:, 1:].plot.bar(stacked=True)
 ax.set_xticklabels(label_name)
 plt.savefig('total_task_result.jpg')
@@ -30,13 +30,12 @@ tasks = set(df_episode['task'])
 for i in tasks:
     df_task = df_episode[df_episode.task == i].copy()
     fig, ax1 = plt.subplots()
-    s = df_task.index
+    s = df_task.episode
     ax1.plot(s, df_task['step'], color='r', label='step')
     ax1.set_xlabel('number of episodes')
     ax1.set_ylabel('number of steps')
     ax2 = ax1.twinx()
     ax2.plot(s, df_task['time'], color='g', label='time')
-    # plt.legend()
     ax2.set_ylabel('elapsed times')
     file_name = 'task' + str(i) + '.jpg'
     h1, l1 = ax1.get_legend_handles_labels()

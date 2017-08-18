@@ -19,17 +19,16 @@ from config.model import CNN_FEATURE_EXTRACTOR, CAFFE_MODEL, MODEL_TYPE
 
 import logging
 import logging.config
-from config.log import CHERRYPY_ACCESS_LOG, CHERRYPY_ERROR_LOG, LOGGING, APP_KEY, INBOUND_KEY, OUTBOUND_KEY, TASK_RESULT_KEY, EPISODE_RESULT_KEY
+from config.log import CHERRYPY_ACCESS_LOG, CHERRYPY_ERROR_LOG, LOGGING, APP_KEY, INBOUND_KEY, OUTBOUND_KEY
 from cognitive.service import AgentService
+from tool.result_logger import ResultLogger
+
 logging.config.dictConfig(LOGGING)
 
 inbound_logger = logging.getLogger(INBOUND_KEY)
 app_logger = logging.getLogger(APP_KEY)
 outbound_logger = logging.getLogger(OUTBOUND_KEY)
-episode_result_logger = logging.getLogger(EPISODE_RESULT_KEY)
-task_result_logger = logging.getLogger(TASK_RESULT_KEY)
 
-import time
 
 def unpack(payload, depth_image_count=1, depth_image_dim=32*32):
     dat = msgpack.unpackb(payload)
@@ -79,13 +78,7 @@ class Root(object):
             app_logger.info("pickle.dump finished")
 
         self.agent_service = AgentService(BRICA_CONFIG_FILE, self.feature_extractor)
-        self.steps = 0
-        self.episode = 0
-        self.task = 1
-        self.start_time = time.time()
-        episode_result_logger.info("task,episode,step,time")
-        task_result_logger.info("task,success,failure")
-
+        self.result_logger = ResultLogger()
 
     @cherrypy.expose()
     def flush(self, identifier):
@@ -98,23 +91,22 @@ class Root(object):
 
         inbound_logger.info('reward: {}, depth: {}'.format(reward, observation['depth']))
         feature = self.feature_extractor.feature(observation)
+        self.result_logger.initialize()
         result = self.agent_service.create(reward, feature, identifier)
 
         outbound_logger.info('action: {}'.format(result))
-        self.start_time = time.time()
-        self.steps = 0
-        self.episode += 1
+
         return str(result)
 
     @cherrypy.expose
     def step(self, identifier):
         body = cherrypy.request.body.read()
         reward, observation = unpack(body)
-        self.steps += 1
+
         inbound_logger.info('reward: {}, depth: {}'.format(reward, observation['depth']))
 
         result = self.agent_service.step(reward, observation, identifier)
-
+        self.result_logger.step()
         outbound_logger.info('result: {}'.format(result))
         return str(result)
 
@@ -127,12 +119,8 @@ class Root(object):
             reward, success, failure, elapsed))
 
         result = self.agent_service.reset(reward, identifier)
-        elapsed_time = time.time() - self.start_time
-        if finished:
-            task_result_logger.info('{}, {}, {}'.format(self.task, success, failure))
-            self.task += 1
-            self.episode = 0
-        episode_result_logger.info('{}, {}, {}, {}'.format(self.task, self.episode, self.steps, elapsed_time))
+        self.result_logger.report(success, failure, finished)
+
         outbound_logger.info('result: {}'.format(result))
         return str(result)
 
