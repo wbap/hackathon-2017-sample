@@ -3,11 +3,14 @@ from . import BASE_DIR
 
 # TODO: if you want to choose another directory, change LOG_DIR path.
 LOG_DIR = BASE_DIR + '/log/'
+RESULT_DIR = BASE_DIR + '/tool/'
 
 
 APP_KEY = 'app'
 INBOUND_KEY = 'inbound'
 OUTBOUND_KEY = 'outbound'
+EPISODE_RESULT_KEY = 'episode_result'
+TASK_RESULT_KEY = 'task_result'
 
 LOGGING = {
     'version': 1,
@@ -22,6 +25,9 @@ LOGGING = {
         'simple': {
             'format': '[%(levelname)s] %(message)s'
         },
+        'result': {
+            'format': '%(message)s'
+        }
     },
     'handlers': {
         'app': {
@@ -46,6 +52,20 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
+        },
+        'task_result': {
+            'level': 'INFO',
+            'mode':'w',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'result',
+            'filename': RESULT_DIR + 'task_result.log'
+        },
+        'episode_result': {
+            'level': 'INFO',
+            'mode':'w',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'result',
+            'filename': RESULT_DIR + 'episode_result.log'
         }
     },
     'loggers': {
@@ -66,7 +86,25 @@ LOGGING = {
             'level': 'DEBUG',
             'backupCount': 4,
             'formatter': 'verbose',
-        }
+        },
+        OUTBOUND_KEY: {
+            'handlers': ['outbound'],
+            'level': 'DEBUG',
+            'backupCount': 4,
+            'formatter': 'verbose',
+        },
+        TASK_RESULT_KEY: {
+            'handlers': ['task_result'],
+            'level': 'INFO',
+            'backupCount': 4,
+            'formatter': 'result',
+        },
+        EPISODE_RESULT_KEY: {
+            'handlers': ['episode_result'],
+            'level': 'INFO',
+            'backupCount': 4,
+            'formatter': 'result',
+        },
     }
 }
 
