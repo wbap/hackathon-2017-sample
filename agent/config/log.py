@@ -3,7 +3,6 @@ from . import BASE_DIR
 
 # TODO: if you want to choose another directory, change LOG_DIR path.
 LOG_DIR = BASE_DIR + '/log/'
-RESULT_DIR = BASE_DIR + '/tool/'
 
 
 APP_KEY = 'app'
@@ -58,14 +57,14 @@ LOGGING = {
             'mode':'w',
             'class': 'logging.handlers.RotatingFileHandler',
             'formatter': 'result',
-            'filename': RESULT_DIR + 'task_result.log'
+            'filename': LOG_DIR + 'task_result.log'
         },
         'episode_result': {
             'level': 'INFO',
             'mode':'w',
             'class': 'logging.handlers.RotatingFileHandler',
             'formatter': 'result',
-            'filename': RESULT_DIR + 'episode_result.log'
+            'filename': LOG_DIR + 'episode_result.log'
         }
     },
     'loggers': {

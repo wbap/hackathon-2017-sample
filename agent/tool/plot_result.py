@@ -13,9 +13,8 @@ args = parser.parse_args()
 
 task_file = args.task_file
 episode_file = args.episode_file
-df_task = pd.read_csv(task_file)
-df_episode = pd.read_csv(episode_file)
-
+df_task = pd.read_csv('../log/'+task_file)
+df_episode = pd.read_csv('../log/'+episode_file)
 # plot task result
 labels = df_task.index
 label_name = []
