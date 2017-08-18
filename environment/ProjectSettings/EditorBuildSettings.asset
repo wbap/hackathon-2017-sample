@@ -44,3 +44,15 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/CrossMazeTask2.unity
     guid: 17153ecfb43ba4e5b8d80ddc93cc4d75
+  - enabled: 1
+    path: Assets/Scenes/OneDimTask8a.unity
+    guid: 4a578bd33d78546b7b308acc97940bb5
+  - enabled: 1
+    path: Assets/Scenes/OneDimTask8b.unity
+    guid: f6d875aabe5a543f1af8828632ec7f09
+  - enabled: 1
+    path: Assets/Scenes/OneDimTask8c.unity
+    guid: 000c61094a2dd4cabb2bc492f2ed0502
+  - enabled: 1
+    path: Assets/Scenes/OneDimTask8d.unity
+    guid: a69bba2fa694e47c7902ed9b0bf7ec11
