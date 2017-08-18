@@ -9,7 +9,6 @@ public class OneDimTask8b : Task {
 	Range range = Range.Blue;
 
 	public override string Name() { return "One Dimensional Task 8-b"; }
-	public override string Next() { return "OneDimTask8c"; }
 
 	public override bool Success() {
 		return rewardCount > 1;
