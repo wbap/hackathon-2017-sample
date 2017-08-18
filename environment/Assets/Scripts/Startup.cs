@@ -17,6 +17,10 @@ public class Startup : MonoBehaviour {
         "OneDimTask5",
         "OneDimTask6",
         "OneDimTask7",
+		"OneDimTask8a",
+		"OneDimTask8b",
+		"OneDimTask8c",
+		"OneDimTask8d",
 
         "CrossMazeTask1",
         "CrossMazeTask2",
