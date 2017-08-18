@@ -155,7 +155,7 @@ class QNet:
             self.optimizer.update()
 
         # Target model update
-        if self.initial_exploration < self.time and np.mod(self.time, self.target_model_update_freq) == 0:
+        if replayed_experience[0] and np.mod(self.time, self.target_model_update_freq) == 0:
             app_logger.info("Model Updated")
             self.target_model_update()
 

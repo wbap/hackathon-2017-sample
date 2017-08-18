@@ -88,8 +88,8 @@ class Root(object):
         reward, observation = unpack(body)
 
         inbound_logger.info('reward: {}, depth: {}'.format(reward, observation['depth']))
-
-        result = self.agent_service.create(reward, observation, identifier)
+        feature = self.feature_extractor.feature(observation)
+        result = self.agent_service.create(reward, feature, identifier)
 
         outbound_logger.info('action: {}'.format(result))
 
