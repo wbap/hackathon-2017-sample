@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 from . import BASE_DIR
+import os
 
 # TODO: if you want to choose another directory, change LOG_DIR path.
 LOG_DIR = BASE_DIR + '/log/'
 
+if os.path.exists(LOG_DIR) is False:
+    os.mkdir(LOG_DIR)
 
 APP_KEY = 'app'
 INBOUND_KEY = 'inbound'
