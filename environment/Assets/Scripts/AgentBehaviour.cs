@@ -28,7 +28,7 @@ public class AgentBehaviour : MonoBehaviour {
         msg.image = sensor.GetRgbImages();
         msg.depth = sensor.GetDepthImages();
 
-        switch(action) {
+        switch(lastAction) {
         case "0":
             msg.rotation = PlayerPrefs.GetFloat("Rotation Speed");
             break;
