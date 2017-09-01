@@ -76,7 +76,6 @@ class AgentService:
 
         self.schedulers[identifier].update()
 
-
     def create(self, reward, feature, identifier):
         if identifier not in self.agents:
             self.initialize(identifier)
@@ -88,7 +87,7 @@ class AgentService:
         self.ub_components[identifier].last_state = feature
 
         if app_logger.isEnabledFor(logging.DEBUG):
-            app_logger.debug('feature: {}'.format(features))
+            app_logger.debug('feature: {}'.format(feature))
 
         return action
 
