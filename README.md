@@ -1,4 +1,4 @@
-# WBAI　HACHATON 2017 Sample
+# WBAI HACKATHON 2017 Sample
 ====
 
 このレポジトリは 2017年に開催する Hackathon のサンプルコードを提供します。
