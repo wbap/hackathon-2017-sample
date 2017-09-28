@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import interpreter
+from cognitive import interpreter
 import brica1
 import numpy as np
 
