@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import argparse
-import cPickle as pickle
+import six.moves.cPickle as pickle
 import io
 import os
 
@@ -10,6 +10,7 @@ import msgpack
 import numpy as np
 from PIL import Image
 from PIL import ImageOps
+from builtins import range
 
 from cognitive import interpreter
 from ml.cnn_feature_extractor import CnnFeatureExtractor
@@ -34,29 +35,29 @@ def unpack(payload, depth_image_count=1, depth_image_dim=32*32):
     dat = msgpack.unpackb(payload)
 
     image = []
-    for i in xrange(depth_image_count):
-        image.append(Image.open(io.BytesIO(bytearray(dat['image'][i]))))
+    for i in range(depth_image_count):
+        image.append(Image.open(io.BytesIO(bytearray(dat[b'image'][i]))))
 
     depth = []
-    for i in xrange(depth_image_count):
-        d = (Image.open(io.BytesIO(bytearray(dat['depth'][i]))))
+    for i in range(depth_image_count):
+        d = (Image.open(io.BytesIO(bytearray(dat[b'depth'][i]))))
         depth.append(np.array(ImageOps.grayscale(d)).reshape(depth_image_dim))
 
-    reward = dat['reward']
+    reward = dat[b'reward']
     observation = {"image": image, "depth": depth}
-    rotation = dat['rotation']
-    movement = dat['movement']
+    rotation = dat[b'rotation']
+    movement = dat[b'movement']
 
     return reward, observation, rotation, movement
 
 
 def unpack_reset(payload):
     dat = msgpack.unpackb(payload)
-    reward = dat['reward']
-    success = dat['success']
-    failure = dat['failure']
-    elapsed = dat['elapsed']
-    finished = dat['finished']
+    reward = dat[b'reward']
+    success = dat[b'success']
+    failure = dat[b'failure']
+    elapsed = dat[b'elapsed']
+    finished = dat[b'finished']
 
     return reward, success, failure, elapsed, finished
 
@@ -72,11 +73,11 @@ class Root(object):
     def __init__(self, **kwargs):
         if os.path.exists(CNN_FEATURE_EXTRACTOR):
             app_logger.info("loading... {}".format(CNN_FEATURE_EXTRACTOR))
-            self.feature_extractor = pickle.load(open(CNN_FEATURE_EXTRACTOR))
+            self.feature_extractor = pickle.load(open(CNN_FEATURE_EXTRACTOR, 'rb'))
             app_logger.info("done")
         else:
             self.feature_extractor = CnnFeatureExtractor(use_gpu, CAFFE_MODEL, MODEL_TYPE, image_feature_dim)
-            pickle.dump(self.feature_extractor, open(CNN_FEATURE_EXTRACTOR, 'w'))
+            pickle.dump(self.feature_extractor, open(CNN_FEATURE_EXTRACTOR, 'wb'))
             app_logger.info("pickle.dump finished")
 
         self.agent_service = AgentService(BRICA_CONFIG_FILE, self.feature_extractor)
