@@ -1,55 +1,71 @@
 ﻿using UnityEngine;
 
 public class CrossMazeTask1 : Task {
-	public override string Name() { return "Cross Maze Task 1"; }
+    float rewardValue = 2.0F;
 
-	public override void Initialize(int success, int failure) {
-		// 仕様「S地点は3ヶ所あり、ランダムにスタート地点が決定する」を実現する
+    public override string Name() { return "Cross Maze Task 1"; }
 
-		int phase = (int)(Random.value * 3);
-		float x = 0.0f;
-		float y = 1.12f;
-		float z = 0.5f;
+    public override void Initialize(int success, int failure) {
+        // 仕様「S地点は3ヶ所あり、ランダムにスタート地点が決定する」を実現する
 
-		float rx = 0.0f;
-		float ry = 0.0f;
-		float rz = 0.0f;
-		Quaternion rotation = Quaternion.identity;
+        int phase = (int)(Random.value * 3);
+        float x = 0.0f;
+        float y = 1.12f;
+        float z = 0.5f;
+
+        float rx = 0.0f;
+        float ry = 0.0f;
+        float rz = 0.0f;
+        Quaternion rotation = Quaternion.identity;
 			
-		switch(phase) {
-		case 0:
-			// 南端からスタート {0, 0, 0}
-			break;
-		case 1:
-			// 東端からスタート {0, 0, 0}
-			x = 12.0f;
-			z = 12.5f;
-			ry = -90.0f;
-			break;
-		case 2:
-			// 西端からスタート {0, 0, 0}
-			x = -12.0f;
-			z = 12.5f;
-			ry = 90.0f;
-			break;
-		default:
-			break;
-		}
+        switch(phase) {
+            case 0:
+                // 南端からスタート {0, 0, 0}
+                break;
+            case 1:
+                // 東端からスタート {0, 0, 0}
+                x = 12.0f;
+                z = 12.5f;
+                ry = -90.0f;
+                break;
+            case 2:
+                // 西端からスタート {0, 0, 0}
+                x = -12.0f;
+                z = 12.5f;
+                ry = 90.0f;
+                break;
+            default:
+                break;
+        }
 
-		agent.transform.position = new Vector3(x, y, z);
-		rotation.eulerAngles = new Vector3 (rx, ry, rz);
-		agent.transform.rotation = rotation;
-	}
+        agent.transform.position = new Vector3(x, y, z);
+        rotation.eulerAngles = new Vector3 (rx, ry, rz);
+        agent.transform.rotation = rotation;
+    }
 
-	public override bool Success() {
-		return rewardCount > 0;
-	}
+    public override bool Success() {
+        return rewardCount > 0;
+    }
 
-	public override bool Failure() {
-		return Reward.Get() < -1.8F;
-	}
+    public override bool Failure() {
+        return Reward.Get() < -1.8F;
+    }
 
-	public override bool Done(int success, int failure) {
-		return (success - failure) > 21;
-	}
+    public override bool Done(int success, int failure) {
+        return (success - failure) > 21;
+    }
+
+    protected override void OnRewardCollision() {
+        rewardCount += 1;
+        Debug.Log(rewardValue);
+        Reward.Add(rewardValue);
+    }
+
+    void FixedUpdate() {
+        Punishment();
+        rewardValue -= 0.002F;
+        if(rewardValue < 0.0F) {
+            rewardValue = 0.0F;
+        }
+    }
 }
