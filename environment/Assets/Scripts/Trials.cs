@@ -2,7 +2,7 @@
 
 public class Trials {
     public static void Reset() {
-        Debug.Log("Reset trials");
+        PlayerPrefs.SetString("Trials", "");
     }
 
     public static void AddSuccess() {
