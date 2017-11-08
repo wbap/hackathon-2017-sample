@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class OneDimTask3 : Task {
+public class OneDimTask3 : OneDimTaskBase {
     public GameObject reward;
 
     bool rewardShown = false;
@@ -9,18 +9,6 @@ public class OneDimTask3 : Task {
     Range range = Range.Green;
 
     public override string Name() { return "One Dimensional Task 3"; }
-
-    public override bool Success() {
-        return rewardCount > 1;
-    }
-
-    public override bool Failure() {
-        return Reward.Get() < -1.8F;
-    }
-
-    public override bool Done(int success, int failure) {
-        return (success - failure) > 21;
-    }
 
     void Update() {
         float z = agent.transform.position.z;

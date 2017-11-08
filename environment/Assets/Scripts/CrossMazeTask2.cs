@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class CrossMazeTask2 : Task {
+public class CrossMazeTask2 : CrossMazeTaskBase {
 	public override string Name() { return "Cross Maze Task 2"; }
 
 	public override void Initialize(int success, int failure) {
@@ -39,13 +39,5 @@ public class CrossMazeTask2 : Task {
 
 	public override bool Success() {
 		return rewardCount > 2;
-	}
-
-	public override bool Failure() {
-		return Reward.Get() < -1.8F;
-	}
-
-	public override bool Done(int success, int failure) {
-		return (success - failure) > 21;
 	}
 }

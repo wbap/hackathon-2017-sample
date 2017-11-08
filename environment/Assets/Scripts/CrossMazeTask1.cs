@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class CrossMazeTask1 : Task {
+public class CrossMazeTask1 : CrossMazeTaskBase {
     float rewardValue = 2.0F;
 
     public override string Name() { return "Cross Maze Task 1"; }
@@ -45,20 +45,6 @@ public class CrossMazeTask1 : Task {
 
     public override bool Success() {
         return rewardCount > 0;
-    }
-
-    public override bool Failure() {
-        return Reward.Get() < -1.8F;
-    }
-
-    public override bool Done(int success, int failure) {
-        return (success - failure) > 21;
-    }
-
-    protected override void OnRewardCollision() {
-        rewardCount += 1;
-        Debug.Log(rewardValue);
-        Reward.Add(rewardValue);
     }
 
     void FixedUpdate() {
