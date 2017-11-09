@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class ArrowMazeTask2 : ArroMazeTaskBase {
+public class ArrowMazeTask2 : ArrowMazeTaskBase {
 	int waitedTime = 0;
 	bool waited = false;
 

@@ -1,6 +1,6 @@
 ﻿public abstract class OneDimTaskBase : Task {
     public override bool Success() {
-        return rewardCount > 0;
+        return rewardCount > 1;
     }
 
     public override bool Failure() {

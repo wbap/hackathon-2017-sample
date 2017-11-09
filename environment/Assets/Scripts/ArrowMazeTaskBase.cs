@@ -1,4 +1,4 @@
-﻿public class ArrowMazeTaskBase : Task {
+﻿public abstract class ArrowMazeTaskBase : Task {
         public override bool Success() {
                 return rewardCount > 0;
         }

@@ -7,6 +7,10 @@ public class OneDimTask2 : OneDimTaskBase {
 
     public override string Name() { return "One Dimensional Task 2"; }
 
+    public override bool Success() {
+        return rewardCount > 1;
+    }
+
     void Update() {
         float z = agent.transform.position.z;
 
