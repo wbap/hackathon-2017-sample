@@ -10,18 +10,18 @@ public class OneDimTask3 : OneDimTaskBase {
     Range range = Range.Green;
 
     public override string AutomationSequence() {
-        string[] sequences = new string[] {
+        return String.Join("", new string[] {
             new String('2', 7),
             new String('3', 120),
             new String('2', 4)
-        };
-
-        return String.Join("", sequences);
+        });
     }
 
     public override string Name() { return "One Dimensional Task 3"; }
 
     void FixedUpdate() {
+        base.FixedUpdate();
+
         float z = agent.transform.position.z;
 
         if(range.start <= z && z <= range.end) {

@@ -40,7 +40,7 @@ public abstract class Task : MonoBehaviour {
         NotificationCenter.DefaultCenter.AddObserver(this, "OnRewardCollision");
     }
 
-    void FixedUpdate() {
+    protected void FixedUpdate() {
         Punishment();
     }
 }

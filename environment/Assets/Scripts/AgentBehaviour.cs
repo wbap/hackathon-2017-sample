@@ -72,8 +72,10 @@ public class AgentBehaviour : MonoBehaviour {
 	
     void LateUpdate () {
         if(Automator.Enabled()) {
-            string action = Automator.Step();
-            controller.PerformAction(action);
+            if(!controller.Paralyzed) {
+                string action = Automator.Step();
+                controller.PerformAction(action);
+            }
             return;
         }
 

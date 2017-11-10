@@ -12,7 +12,9 @@ public class OneDimTask2 : OneDimTaskBase {
 
     public override string Name() { return "One Dimensional Task 2"; }
 
-    void Update() {
+    void FixedUpdate() {
+        base.FixedUpdate();
+
         float z = agent.transform.position.z;
 
         if(11.5F <= z && z <= 15.5F) {
