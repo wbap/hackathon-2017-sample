@@ -1,9 +1,14 @@
 ﻿using UnityEngine;
+using System;
 
 public class OneDimTask2 : OneDimTaskBase {
     public GameObject reward;
 
     bool rewardShown = false;
+
+    public override string AutomationSequence() {
+        return new String('2', 11);
+    }
 
     public override string Name() { return "One Dimensional Task 2"; }
 
