@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class OneDimTask1 : Task {
+public class OneDimTask1 : OneDimTaskBase {
     public override string Name() { return "One Dimensional Task 1"; }
 
     public override void Initialize(int success, int failure) {
@@ -10,13 +10,5 @@ public class OneDimTask1 : Task {
 
     public override bool Success() {
         return rewardCount > 0;
-    }
-
-    public override bool Failure() {
-        return Reward.Get() < -1.8F;
-    }
-
-    public override bool Done(int success, int failure) {
-        return (success - failure) > 21;
     }
 }

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class OneDimTask8d : Task {
+public class OneDimTask8d : OneDimTaskBase {
 	public GameObject reward;
 	public ShapeSelector selector;
 
@@ -30,18 +30,6 @@ public class OneDimTask8d : Task {
 		default:
 			break;
 		}
-	}
-
-	public override bool Success() {
-		return rewardCount > 1;
-	}
-
-	public override bool Failure() {
-		return Reward.Get() < -1.8F;
-	}
-
-	public override bool Done(int success, int failure) {
-		return (success - failure) > 21;
 	}
 
 	void Update() {
