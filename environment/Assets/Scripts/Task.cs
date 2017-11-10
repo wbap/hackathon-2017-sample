@@ -5,6 +5,10 @@ public abstract class Task : MonoBehaviour {
 
     protected int rewardCount = 0;
 
+    public virtual string AutomationSequence() {
+        return "";
+    }
+
     public abstract string Name();
 
     public virtual void Initialize(int success, int failure) {
