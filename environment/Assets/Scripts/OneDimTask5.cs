@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 
 public class OneDimTask5 : OneDimTaskBase {
     public GameObject reward;
@@ -8,9 +9,19 @@ public class OneDimTask5 : OneDimTaskBase {
 
     Range range = Range.Blue;
 
+    public override string AutomationSequence() {
+        return String.Join("", new string[] {
+            new String('2', 4),
+            new String('3', 130),
+            new String('2', 7)
+        });
+    }
+
     public override string Name() { return "One Dimensional Task 5"; }
 
-    void Update() {
+    void FixedUpdate() {
+        base.FixedUpdate();
+
         float z = agent.transform.position.z;
 
         if(range.start <= z && z <= range.end) {

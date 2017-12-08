@@ -1,6 +1,11 @@
 ﻿using UnityEngine;
+using System;
 
 public class OneDimTask1 : OneDimTaskBase {
+    public override string AutomationSequence() {
+        return new String('2', 11);
+    }
+
     public override string Name() { return "One Dimensional Task 1"; }
 
     public override void Initialize(int success, int failure) {

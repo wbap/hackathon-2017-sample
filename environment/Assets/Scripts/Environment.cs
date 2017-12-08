@@ -24,6 +24,10 @@ public class Environment : MonoBehaviour {
     void Start() {
         task = GetComponent<Task>();
 
+        if(Automator.Enabled()) {
+            Automator.Setup(task.AutomationSequence());
+        }
+
         Reward.Set(0.0F);
 
         if(!PlayerPrefs.HasKey("Task Name")) {
@@ -42,6 +46,10 @@ public class Environment : MonoBehaviour {
         int failureCount = Trials.GetFailure();
 
         task.Initialize(successCount, failureCount);
+
+        if(Automator.Enabled()) {
+            Automator.Setup(task.AutomationSequence());
+        }
 
         taskText.text = PlayerPrefs.GetString("Task Name");
         successText.text = "Success: " + successCount;
@@ -73,6 +81,10 @@ public class Environment : MonoBehaviour {
         }
 
         if(task.Failure()) {
+            if(Automator.Enabled()) {
+                Debug.LogError("You have enabled autorun but task has failed: check your automation sequence for task '" + PlayerPrefs.GetString("Task Name") + "'");
+            }
+
             task.Reset();
 
             Trials.AddFailure();
