@@ -96,6 +96,7 @@ class Root(object):
         feature = self.feature_extractor.feature(observation)
         self.result_logger.initialize()
         result = self.agent_service.create(reward, feature, identifier)
+        self.result_logger.add_agent(self.agent_service.agents[identifier])
 
         outbound_logger.info('action: {}'.format(result))
 
