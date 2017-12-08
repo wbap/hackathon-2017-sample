@@ -71,6 +71,14 @@ public class AgentBehaviour : MonoBehaviour {
     }
 	
     void LateUpdate () {
+        if(Automator.Enabled()) {
+            if(!controller.Paralyzed) {
+                string action = Automator.Step();
+                controller.PerformAction(action);
+            }
+            return;
+        }
+
         if(!created) {
             if(!client.Calling) {
                 client.Create(GenerateMessage());

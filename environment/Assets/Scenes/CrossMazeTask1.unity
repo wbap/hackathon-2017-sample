@@ -352,6 +352,55 @@ Prefab:
       propertyPath: ManualOverride
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 20624300946089716, guid: 7807d5793a14e43459d66a7063f42614,
+        type: 2}
+      propertyPath: m_BackGroundColor.r
+      value: 0.19215687
+      objectReference: {fileID: 0}
+    - target: {fileID: 20624300946089716, guid: 7807d5793a14e43459d66a7063f42614,
+        type: 2}
+      propertyPath: m_BackGroundColor.g
+      value: 0.3019608
+      objectReference: {fileID: 0}
+    - target: {fileID: 20624300946089716, guid: 7807d5793a14e43459d66a7063f42614,
+        type: 2}
+      propertyPath: m_BackGroundColor.b
+      value: 0.4745098
+      objectReference: {fileID: 0}
+    - target: {fileID: 20624300946089716, guid: 7807d5793a14e43459d66a7063f42614,
+        type: 2}
+      propertyPath: near clip plane
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 20624300946089716, guid: 7807d5793a14e43459d66a7063f42614,
+        type: 2}
+      propertyPath: far clip plane
+      value: 1000
+      objectReference: {fileID: 0}
+    - target: {fileID: 2009838, guid: 7807d5793a14e43459d66a7063f42614, type: 2}
+      propertyPath: m_BackGroundColor.r
+      value: 0.19215687
+      objectReference: {fileID: 0}
+    - target: {fileID: 2009838, guid: 7807d5793a14e43459d66a7063f42614, type: 2}
+      propertyPath: m_BackGroundColor.g
+      value: 0.3019608
+      objectReference: {fileID: 0}
+    - target: {fileID: 2009838, guid: 7807d5793a14e43459d66a7063f42614, type: 2}
+      propertyPath: m_BackGroundColor.b
+      value: 0.4745098
+      objectReference: {fileID: 0}
+    - target: {fileID: 2009838, guid: 7807d5793a14e43459d66a7063f42614, type: 2}
+      propertyPath: m_BackGroundColor.a
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2009838, guid: 7807d5793a14e43459d66a7063f42614, type: 2}
+      propertyPath: near clip plane
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2009838, guid: 7807d5793a14e43459d66a7063f42614, type: 2}
+      propertyPath: far clip plane
+      value: 1000
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 7807d5793a14e43459d66a7063f42614, type: 2}
   m_IsPrefabParent: 0

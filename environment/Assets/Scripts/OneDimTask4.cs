@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
+using System;
 
-public class OneDimTask4 : Task {
+public class OneDimTask4 : OneDimTaskBase {
     public GameObject reward;
 
     bool rewardShown = false;
@@ -8,21 +9,19 @@ public class OneDimTask4 : Task {
 
     Range range = Range.Red;
 
+    public override string AutomationSequence() {
+        return String.Join("", new string[] {
+            new String('2', 10),
+            new String('3', 130),
+            new String('2', 1)
+        });
+    }
+
     public override string Name() { return "One Dimensional Task 4"; }
 
-    public override bool Success() {
-        return rewardCount > 1;
-    }
+    void FixedUpdate() {
+        base.FixedUpdate();
 
-    public override bool Failure() {
-        return Reward.Get() < -1.8F;
-    }
-
-    public override bool Done(int success, int failure) {
-        return (success - failure) > 21;
-    }
-
-    void Update() {
         float z = agent.transform.position.z;
 
         if(range.start <= z && z <= range.end) {

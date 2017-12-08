@@ -1,25 +1,20 @@
 ﻿using UnityEngine;
+using System;
 
-public class OneDimTask2 : Task {
+public class OneDimTask2 : OneDimTaskBase {
     public GameObject reward;
 
     bool rewardShown = false;
 
+    public override string AutomationSequence() {
+        return new String('2', 11);
+    }
+
     public override string Name() { return "One Dimensional Task 2"; }
 
-    public override bool Success() {
-        return rewardCount > 1;
-    }
+    void FixedUpdate() {
+        base.FixedUpdate();
 
-    public override bool Failure() {
-        return Reward.Get() < -1.8F;
-    }
-
-    public override bool Done(int success, int failure) {
-        return (success - failure) > 21;
-    }
-
-    void Update() {
         float z = agent.transform.position.z;
 
         if(11.5F <= z && z <= 15.5F) {

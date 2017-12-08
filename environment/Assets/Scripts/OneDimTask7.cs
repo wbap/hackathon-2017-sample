@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
+using System;
 
-public class OneDimTask7 : Task {
+public class OneDimTask7 : OneDimTaskBase {
     public GameObject reward;
     public ShapeSelector selector;
 
@@ -10,44 +11,59 @@ public class OneDimTask7 : Task {
 
     Range range;
 
-    public override string Name() { return "One Dimensional Task 6"; }
+    string automation;
+
+    public override string AutomationSequence() { return automation; }
+
+    public override string Name() { return "One Dimensional Task 7"; }
 
     public override void Initialize(int success, int failure) {
-        int phase = (int)(Random.value * 3);
+        int phase = (int)(UnityEngine.Random.value * 3);
 
         selector.Selection = phase;
 
         switch(phase) {
         case 0:
             range = Range.Red;
+
+            automation = String.Join("", new string[] {
+                new String('2', 10),
+                new String('3', 130),
+                new String('2', 1)
+            });
+
             break;
         case 1:
             range = Range.Green;
+
+            automation = String.Join("", new string[] {
+                new String('2', 7),
+                new String('3', 130),
+                new String('2', 4)
+            });
+
             break;
         case 2:
             range = Range.Blue;
+
+            automation = String.Join("", new string[] {
+                new String('2', 4),
+                new String('3', 130),
+                new String('2', 7)
+            });
+
             break;
         default:
             break;
         }
     }
 
-    public override bool Success() {
-        return rewardCount > 1;
-    }
+    void FixedUpdate() {
+        base.FixedUpdate();
 
-    public override bool Failure() {
-        return Reward.Get() < -1.8F;
-    }
-
-    public override bool Done(int success, int failure) {
-        return (success - failure) > 21;
-    }
-
-    void Update() {
         float z = agent.transform.position.z;
 
-        if(elapsed < 120) {
+        if(elapsed < 130) {
             agent.controller.Paralyzed = true;
             selector.Visible = true;
             elapsed += 1;

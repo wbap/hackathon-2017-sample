@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor.SceneManagement;
+using System.Collections.Generic;
 
 [RequireComponent(typeof (Task))]
 public class Environment : MonoBehaviour {
@@ -18,34 +19,37 @@ public class Environment : MonoBehaviour {
 
     Task task;
 
-    int successCount;
-    int failureCount;
-
     int elapsed = 0;
 
     void Start() {
         task = GetComponent<Task>();
 
+        if(Automator.Enabled()) {
+            Automator.Setup(task.AutomationSequence());
+        }
+
         Reward.Set(0.0F);
 
         if(!PlayerPrefs.HasKey("Task Name")) {
             PlayerPrefs.SetString("Task Name", task.Name());
-            PlayerPrefs.SetInt("Success Count", 0);
-            PlayerPrefs.SetInt("Failure Count", 0);
+            Trials.Reset();
         }
 
         if(PlayerPrefs.GetString("Task Name") != task.Name()) {
             PlayerPrefs.SetString("Task Name", task.Name());
-            PlayerPrefs.SetInt("Success Count", 0);
-            PlayerPrefs.SetInt("Failure Count", 0);
+            Trials.Reset();
         }
 
         PlayerPrefs.SetInt("Elapsed Time", elapsed);
 
-        successCount = PlayerPrefs.GetInt("Success Count");
-        failureCount = PlayerPrefs.GetInt("Failure Count");
+        int successCount = Trials.GetSuccess();
+        int failureCount = Trials.GetFailure();
 
         task.Initialize(successCount, failureCount);
+
+        if(Automator.Enabled()) {
+            Automator.Setup(task.AutomationSequence());
+        }
 
         taskText.text = PlayerPrefs.GetString("Task Name");
         successText.text = "Success: " + successCount;
@@ -59,7 +63,7 @@ public class Environment : MonoBehaviour {
         if(task.Success()) {
             task.Reset();
 
-            if(task.Done(successCount, failureCount)) {
+            if(task.Done(Trials.GetSuccess(), Trials.GetFailure())) {
                 task.Finish();
 
                 PlayerPrefs.SetInt("Success Count", 0);
@@ -68,15 +72,25 @@ public class Environment : MonoBehaviour {
                 return;
             }
 
-            PlayerPrefs.SetInt("Success Count", successCount + 1);
+            Trials.AddSuccess();
+
+            PlayerPrefs.SetInt("Success Count", Trials.GetSuccess());
+            PlayerPrefs.SetInt("Failure Count", Trials.GetFailure());
             EditorSceneManager.LoadScene(EditorSceneManager.GetActiveScene().name);
             return;
         }
 
         if(task.Failure()) {
+            if(Automator.Enabled()) {
+                Debug.LogError("You have enabled autorun but task has failed: check your automation sequence for task '" + PlayerPrefs.GetString("Task Name") + "'");
+            }
+
             task.Reset();
 
-            PlayerPrefs.SetInt("Failure Count", failureCount + 1);
+            Trials.AddFailure();
+
+            PlayerPrefs.SetInt("Success Count", Trials.GetSuccess());
+            PlayerPrefs.SetInt("Failure Count", Trials.GetFailure());
             EditorSceneManager.LoadScene(EditorSceneManager.GetActiveScene().name);
             return;
         }

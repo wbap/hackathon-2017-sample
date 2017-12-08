@@ -1,28 +1,27 @@
 ﻿using UnityEngine;
+using System;
 
-public class OneDimTask8a : Task {
+public class OneDimTask8a : OneDimTaskBase {
     public GameObject reward;
 
     bool rewardShown = false;
     int waited = 0;
 
-	Range range = Range.Red;
+    Range range = Range.Green;
+
+    public override string AutomationSequence() {
+        return String.Join("", new string[] {
+            new String('2', 7),
+            new String('3', 130),
+            new String('2', 4)
+        });
+    }
 
     public override string Name() { return "One Dimensional Task 8-a"; }
 
-    public override bool Success() {
-        return rewardCount > 1;
-    }
+    void FixedUpdate() {
+        base.FixedUpdate();
 
-    public override bool Failure() {
-        return Reward.Get() < -1.8F;
-    }
-
-    public override bool Done(int success, int failure) {
-        return (success - failure) > 21;
-    }
-
-    void Update() {
         float z = agent.transform.position.z;
 
         if(range.start <= z && z <= range.end) {

@@ -1,62 +1,76 @@
 ﻿using UnityEngine;
+using System;
 
-public class OneDimTask8c : Task {
-	public GameObject reward;
+public class OneDimTask8c : OneDimTaskBase {
+    public GameObject reward;
 
-	bool rewardShown = false;
-	int waited = 0;
+    bool rewardShown = false;
+    int waited = 0;
 
-	Range range;
+    Range range;
 
-	public override string Name() { return "One Dimensional Task 8-c"; }
+    string automation;
 
-	public override void Initialize(int success, int failure) {
-		switch((success + failure) % 3) {
-		case 0:
-			range = Range.Red;
-			break;
-		case 1:
-			range = Range.Green;
-			break;
-		case 2:
-			range = Range.Blue;
-			break;
-		default:
-			break;
-		}
-	}
+    public override string AutomationSequence() { return automation; }
 
-	public override bool Success() {
-		return rewardCount > 1;
-	}
+    public override string Name() { return "One Dimensional Task 8-c"; }
 
-	public override bool Failure() {
-		return Reward.Get() < -1.8F;
-	}
+    public override void Initialize(int success, int failure) {
+        switch((success + failure) % 3) {
+        case 0:
+            range = Range.Red;
 
-	public override bool Done(int success, int failure) {
-		return (success - failure) > 21;
-	}
+            automation = String.Join("", new string[] {
+                new String('2', 10),
+                new String('3', 130),
+                new String('2', 1)
+            });
 
-	void Update() {
-		float z = agent.transform.position.z;
+            break;
+        case 1:
+            range = Range.Green;
 
-		if(range.start <= z && z <= range.end) {
-			if(!rewardShown && waited >= 2 * 60) {
-				rewardCount += 1;
-				Reward.Add(2.0F);
+            automation = String.Join("", new string[] {
+                new String('2', 7),
+                new String('3', 130),
+                new String('2', 4)
+            });
 
-				GameObject rewardObj = (GameObject)GameObject.Instantiate(
-					reward, new Vector3(0.0F, 0.5F, 23.0F), Quaternion.identity
-				);
+            break;
+        case 2:
+            range = Range.Blue;
 
-				rewardObj.transform.parent = transform;
-				rewardShown = true;
-			}
+            automation = String.Join("", new string[] {
+                new String('2', 4),
+                new String('3', 130),
+                new String('2', 7)
+            });
 
-			waited += 1;
-		} else {
-			waited = 0;
-		}
-	}
+            break;
+            default:
+                break;
+        }
+    }
+
+    void Update() {
+        float z = agent.transform.position.z;
+
+        if(range.start <= z && z <= range.end) {
+            if(!rewardShown && waited >= 2 * 60) {
+                rewardCount += 1;
+                Reward.Add(2.0F);
+
+                GameObject rewardObj = (GameObject)GameObject.Instantiate(
+                    reward, new Vector3(0.0F, 0.5F, 23.0F), Quaternion.identity
+                );
+
+                rewardObj.transform.parent = transform;
+                rewardShown = true;
+            }
+
+            waited += 1;
+        } else {
+            waited = 0;
+        }
+    }
 }
