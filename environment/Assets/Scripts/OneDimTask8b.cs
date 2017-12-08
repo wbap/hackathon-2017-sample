@@ -12,7 +12,7 @@ public class OneDimTask8b : OneDimTaskBase {
     public override string AutomationSequence() {
         return String.Join("", new string[] {
             new String('2', 10),
-            new String('3', 120),
+            new String('3', 130),
             new String('2', 1)
         });
     }

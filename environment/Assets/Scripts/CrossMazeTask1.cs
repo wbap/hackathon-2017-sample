@@ -1,6 +1,11 @@
 ﻿using UnityEngine;
+using System;
 
 public class CrossMazeTask1 : CrossMazeTaskBase {
+    string automation;
+
+    public override string AutomationSequence() { return automation; }
+
     float rewardValue = 2.0F;
 
     public override string Name() { return "Cross Maze Task 1"; }
@@ -8,7 +13,7 @@ public class CrossMazeTask1 : CrossMazeTaskBase {
     public override void Initialize(int success, int failure) {
         // 仕様「S地点は3ヶ所あり、ランダムにスタート地点が決定する」を実現する
 
-        int phase = (int)(Random.value * 3);
+        int phase = (int)(UnityEngine.Random.value * 3);
         float x = 0.0f;
         float y = 1.12f;
         float z = 0.5f;
@@ -21,15 +26,26 @@ public class CrossMazeTask1 : CrossMazeTaskBase {
         switch(phase) {
             case 0:
                 // 南端からスタート {0, 0, 0}
+                automation = new String('2', 11);
                 break;
             case 1:
                 // 東端からスタート {0, 0, 0}
+                automation = String.Join("", new string[] {
+                    new String('2', 6),
+                    new String('0', 9),
+                    new String('2', 5)
+                });
                 x = 12.0f;
                 z = 12.5f;
                 ry = -90.0f;
                 break;
             case 2:
                 // 西端からスタート {0, 0, 0}
+                automation = String.Join("", new string[] {
+                    new String('2', 6),
+                    new String('1', 9),
+                    new String('2', 5)
+                });
                 x = -12.0f;
                 z = 12.5f;
                 ry = 90.0f;
